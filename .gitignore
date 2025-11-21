@@ -1,0 +1,13 @@
+/.vs
+/.idea
+/API/bin
+/API/Logs
+/API/obj
+/Application/bin
+/Application/obj
+/Domain/obj
+/Infrastructure/bin
+/Infrastructure/obj
+/UnitTest/bin
+/UnitTest/obj
+/Domain/bin
