@@ -1,4 +1,4 @@
-﻿namespace Microservicio.Domain.Exceptions
+﻿namespace SincronizadorPqfLegacy.Domain.Exceptions
 {
     public class DomainArgumentNullException : Exception
     {

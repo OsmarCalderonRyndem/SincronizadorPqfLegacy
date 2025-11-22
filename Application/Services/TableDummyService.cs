@@ -1,11 +1,11 @@
-﻿using Microservicio.Application.DTOs;
-using Microservicio.Application.Interfaces;
-using Microservicio.Application.Validators;
-using Microservicio.Domain.Models;
-using Microservicio.Infrastructure.Repository;
+﻿using SincronizadorPqfLegacy.Application.DTOs;
+using SincronizadorPqfLegacy.Application.Interfaces;
+using SincronizadorPqfLegacy.Application.Validators;
+using SincronizadorPqfLegacy.Infrastructure.Repository;
 using Microsoft.Extensions.Logging;
+using SincronizadorPqfLegacy.Domain.Models;
 
-namespace Microservicio.Application.Services
+namespace SincronizadorPqfLegacy.Application.Services
 {
     /// <summary>
     /// Provides operations for managing and validating table dummy entities.

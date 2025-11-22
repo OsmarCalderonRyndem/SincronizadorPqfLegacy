@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace Microservicio.Application.Factorys
+namespace SincronizadorPqfLegacy.Application.Factorys
 {
     /// <summary>
     /// Provides utility methods for creating standardized <see cref="ProblemDetails"/> or  <see

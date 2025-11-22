@@ -1,9 +1,9 @@
-﻿using Microservicio.Application.Exceptions;
-using Microservicio.Application.Interfaces.Validators;
-using Microservicio.Domain.Models;
+﻿using SincronizadorPqfLegacy.Application.Exceptions;
+using SincronizadorPqfLegacy.Application.Interfaces.Validators;
 using Serilog;
+using SincronizadorPqfLegacy.Domain.Models;
 
-namespace Microservicio.Application.Validators
+namespace SincronizadorPqfLegacy.Application.Validators
 {
     /// <summary>
     /// Provides validation logic for <see cref="DocumentTemplate"/> instances.

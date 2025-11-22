@@ -1,7 +1,7 @@
-﻿using Microservicio.Domain.Interfaces;
-using Microservicio.Domain.Models;
+﻿using SincronizadorPqfLegacy.Domain.Interfaces;
+using SincronizadorPqfLegacy.Domain.Models;
 
-namespace Microservicio.Infrastructure.Repository
+namespace SincronizadorPqfLegacy.Infrastructure.Repository
 {
     /// <summary>
     /// Provides an implementation of a generic repository for managing <see cref="TableDummyDomain"/> entities.

@@ -1,7 +1,7 @@
-﻿using Microservicio.Infrastructure.Models;
+﻿using SincronizadorPqfLegacy.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Microservicio.Infrastructure.Persistence.Context;
+namespace SincronizadorPqfLegacy.Infrastructure.Persistence.Context;
 
 public partial class MicroservicioContext : DbContext
 {

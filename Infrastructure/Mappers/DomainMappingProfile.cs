@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using Microservicio.Domain.Models;
-using Microservicio.Infrastructure.Models;
+using SincronizadorPqfLegacy.Infrastructure.Models;
+using SincronizadorPqfLegacy.Domain.Models;
 
-namespace Microservicio.Infrastructure.Mappers
+namespace SincronizadorPqfLegacy.Infrastructure.Mappers
 {
     /// <summary>
     /// Provides mapping configurations between domain entities and data transfer objects (DTOs).

@@ -1,4 +1,4 @@
-﻿namespace Microservicio.Domain.Interfaces
+﻿namespace SincronizadorPqfLegacy.Domain.Interfaces
 {
 
     

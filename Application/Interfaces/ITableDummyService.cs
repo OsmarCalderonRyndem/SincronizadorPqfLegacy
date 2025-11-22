@@ -1,6 +1,6 @@
-﻿using Microservicio.Application.DTOs;
+﻿using SincronizadorPqfLegacy.Application.DTOs;
 
-namespace Microservicio.Application.Interfaces
+namespace SincronizadorPqfLegacy.Application.Interfaces
 {
 
     public interface ITableDummyService

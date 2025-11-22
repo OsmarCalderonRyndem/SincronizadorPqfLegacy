@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Microservicio.Application.DTOs
+namespace SincronizadorPqfLegacy.Application.DTOs
 {
-    public class Cotizaciones
+    public class CotizacionesDto
     {
         public Guid IdCoizacion { get; set; }
         public string Folio { get; set; }

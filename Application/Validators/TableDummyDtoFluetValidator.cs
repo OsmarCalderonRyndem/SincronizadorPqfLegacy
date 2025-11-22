@@ -1,7 +1,7 @@
-﻿using Microservicio.Application.DTOs;
+﻿using SincronizadorPqfLegacy.Application.DTOs;
 using FluentValidation;
 
-namespace Microservicio.Application.Validators
+namespace SincronizadorPqfLegacy.Application.Validators
 {
     public class TableDummyDtoFluetValidator : AbstractValidator<TableDummyDto>
     {

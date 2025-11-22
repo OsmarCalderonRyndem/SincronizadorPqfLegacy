@@ -1,8 +1,8 @@
-﻿using Microservicio.Application.DTOs;
-using Microservicio.Application.Interfaces;
+﻿using SincronizadorPqfLegacy.Application.DTOs;
+using SincronizadorPqfLegacy.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Microservicio.API.Controllers
+namespace SincronizadorPqfLegacy.API.Controllers
 {
     /// <summary>
     /// Provides endpoints for generating reports based on table data.

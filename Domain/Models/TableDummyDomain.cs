@@ -1,4 +1,4 @@
-﻿namespace Microservicio.Domain.Models
+﻿namespace SincronizadorPqfLegacy.Domain.Models
 {
     /// <summary>
     /// Represents a domain entity with an identifier, name, and description.

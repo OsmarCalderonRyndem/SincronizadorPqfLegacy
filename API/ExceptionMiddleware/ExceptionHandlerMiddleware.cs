@@ -1,10 +1,10 @@
-﻿using Microservicio.Application.Exceptions;
-using Microservicio.Application.Factorys;
-using Microservicio.Domain.Exceptions;
-using Microservicio.Infrastructure.Exceptions;
+﻿using SincronizadorPqfLegacy.Application.Exceptions;
+using SincronizadorPqfLegacy.Application.Factorys;
+using SincronizadorPqfLegacy.Domain.Exceptions;
+using SincronizadorPqfLegacy.Infrastructure.Exceptions;
 using System.Text.Json;
 
-namespace Microservicio.API.ExceptionMiddleware
+namespace SincronizadorPqfLegacy.API.ExceptionMiddleware
 {
 
     /// <summary>

@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
 
-namespace Microservicio.API.Model
+namespace SincronizadorPqfLegacy.API.Model
 {
     /// <summary>
     /// Extends the standard ProblemDetails class to include additional information such as TraceId.

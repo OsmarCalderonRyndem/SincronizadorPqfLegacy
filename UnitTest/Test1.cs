@@ -1,4 +1,4 @@
-﻿namespace Microservicio.UnitTest
+﻿namespace SincronizadorPqfLegacy.UnitTest
 {
     [TestClass]
     public sealed class Test1

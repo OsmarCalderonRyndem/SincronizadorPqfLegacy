@@ -1,4 +1,4 @@
-﻿namespace Microservicio.Infrastructure.Exceptions
+﻿namespace SincronizadorPqfLegacy.Infrastructure.Exceptions
 {
     public class InfrastructureNotImplementedException : NotImplementedException
     {

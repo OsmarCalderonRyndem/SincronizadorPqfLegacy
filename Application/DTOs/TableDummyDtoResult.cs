@@ -1,6 +1,6 @@
-﻿using Microservicio.Domain.Models;
+﻿using SincronizadorPqfLegacy.Domain.Models;
 
-namespace Microservicio.Application.DTOs
+namespace SincronizadorPqfLegacy.Application.DTOs
 {
     /// <summary>
     /// Represents the result of a table dummy operation, containing the associated table dummy data.

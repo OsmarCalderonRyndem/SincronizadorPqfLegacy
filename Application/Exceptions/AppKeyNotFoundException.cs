@@ -1,4 +1,4 @@
-﻿namespace Microservicio.Application.Exceptions
+﻿namespace SincronizadorPqfLegacy.Application.Exceptions
 {
     public class AppKeyNotFoundException : KeyNotFoundException
     {

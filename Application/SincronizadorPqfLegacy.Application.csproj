@@ -19,7 +19,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Microservicio.Domain.csproj" />
+    <ProjectReference Include="..\Domain\SincronizadorPqfLegacy.Domain.csproj" />
     <ProjectReference Include="..\Infrastructure\Microservicio.Infrastructure.csproj" />
+    <ProjectReference Include="..\Infrastructure\SincronizadorPqfLegacy.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

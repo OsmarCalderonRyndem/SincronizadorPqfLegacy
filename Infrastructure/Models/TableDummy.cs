@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Microservicio.Infrastructure.Models
+namespace SincronizadorPqfLegacy.Infrastructure.Models
 {
     public class TableDummy
     {

@@ -1,4 +1,4 @@
-﻿namespace Microservicio.Domain.Interfaces
+﻿namespace SincronizadorPqfLegacy.Domain.Interfaces
 {
     /// <summary>
     /// Defines a contract for a unit of work that manages repositories and coordinates the saving of changes to the

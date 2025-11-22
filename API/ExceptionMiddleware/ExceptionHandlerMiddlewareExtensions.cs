@@ -1,4 +1,4 @@
-﻿namespace Microservicio.API.ExceptionMiddleware
+﻿namespace SincronizadorPqfLegacy.API.ExceptionMiddleware
 {
 
     /// <summary>

@@ -26,7 +26,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Application\Microservicio.Application.csproj" />
+		<ProjectReference Include="..\Application\SincronizadorPqfLegacy.Application.csproj" />
+		<ProjectReference Include="..\Infrastructure\SincronizadorPqfLegacy.Infrastructure.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

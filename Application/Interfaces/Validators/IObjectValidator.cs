@@ -1,4 +1,4 @@
-﻿namespace Microservicio.Application.Interfaces.Validators
+﻿namespace SincronizadorPqfLegacy.Application.Interfaces.Validators
 {
     /// <summary>
     /// Defines a contract for validating objects of a specified type.

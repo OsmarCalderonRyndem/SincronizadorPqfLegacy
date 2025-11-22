@@ -1,9 +1,9 @@
-﻿using Microservicio.Domain.Interfaces;
-using Microservicio.Infrastructure.Persistence.Context;
+﻿using SincronizadorPqfLegacy.Domain.Interfaces;
+using SincronizadorPqfLegacy.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
-namespace Microservicio.Infrastructure.Repository
+namespace SincronizadorPqfLegacy.Infrastructure.Repository
 {
     
     public class GenericRepository<T> : IGenericRepository<T> where T : class

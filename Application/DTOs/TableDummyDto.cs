@@ -1,5 +1,5 @@
 ﻿
-namespace Microservicio.Application.DTOs
+namespace SincronizadorPqfLegacy.Application.DTOs
 {
     /// <summary>
     /// Represents a data transfer object (DTO) for a table entry with a unique identifier.

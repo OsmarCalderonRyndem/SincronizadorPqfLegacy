@@ -1,19 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36202.13
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11217.181 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{2EF0543A-4E42-4F49-A8F6-EC1170E514A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservicio.API", "API\Microservicio.API.csproj", "{88DF1240-58CC-4303-B794-47E52AD8D42B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SincronizadorPqfLegacy.API", "API\SincronizadorPqfLegacy.API.csproj", "{88DF1240-58CC-4303-B794-47E52AD8D42B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservicio.Domain", "Domain\Microservicio.Domain.csproj", "{74130C48-235B-497C-BE99-68B658B5D849}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SincronizadorPqfLegacy.Domain", "Domain\SincronizadorPqfLegacy.Domain.csproj", "{74130C48-235B-497C-BE99-68B658B5D849}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservicio.Application", "Application\Microservicio.Application.csproj", "{F2367DE5-B154-48F1-8063-B358E276FB12}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SincronizadorPqfLegacy.Application", "Application\SincronizadorPqfLegacy.Application.csproj", "{F2367DE5-B154-48F1-8063-B358E276FB12}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservicio.Infrastructure", "Infrastructure\Microservicio.Infrastructure.csproj", "{0B2A74FA-ED39-4396-9986-2E68CD284761}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SincronizadorPqfLegacy.Infrastructure", "Infrastructure\SincronizadorPqfLegacy.Infrastructure.csproj", "{0B2A74FA-ED39-4396-9986-2E68CD284761}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservicio.UnitTest", "UnitTest\Microservicio.UnitTest.csproj", "{597B8A89-C05C-4E83-AAB6-0118D0649AEB}"
 EndProject

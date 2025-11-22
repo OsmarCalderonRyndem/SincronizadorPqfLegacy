@@ -1,8 +1,8 @@
-﻿using Microservicio.Domain.Interfaces;
-using Microservicio.Infrastructure.Persistence.Context;
+﻿using SincronizadorPqfLegacy.Domain.Interfaces;
+using SincronizadorPqfLegacy.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microservicio.Infrastructure.Persistence
+namespace SincronizadorPqfLegacy.Infrastructure.Persistence
 {
     /// <summary>
     /// Provides a mechanism for managing and coordinating repositories and saving changes to the underlying data store.
