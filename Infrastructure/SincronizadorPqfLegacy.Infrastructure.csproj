@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Domain\Microservicio.Domain.csproj" />
     <ProjectReference Include="..\Domain\SincronizadorPqfLegacy.Domain.csproj" />
   </ItemGroup>
 

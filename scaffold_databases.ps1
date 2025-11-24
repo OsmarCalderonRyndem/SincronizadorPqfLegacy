@@ -12,10 +12,10 @@ Write-Host "========================================================`n" -Foregro
 # ========================================================
 # 1. Configuración general
 # ========================================================
-$INFRA_PROJ = "SincronizadorPqfLegacy.Infrastructure\SincronizadorPqfLegacy.Infrastructure.csproj"
-$API_PROJ = "SincronizadorPqfLegacy.API\SincronizadorPqfLegacy.API.csproj"  
-$APPSETTINGS_PATH = "SincornizadorPqfLegacy.API\appsettings.json"
-$BASE_NAMESPACE = "SincornizadorPqfLegacy.Infrastructure.Persistence"
+$INFRA_PROJ = "Infrastructure\SincronizadorPqfLegacy.Infrastructure.csproj"
+$API_PROJ = "API\SincronizadorPqfLegacy.API.csproj"  
+$APPSETTINGS_PATH = "API\appsettings.json"
+$BASE_NAMESPACE = "Infrastructure.Persistence"
 
 # Configuración de las bases de datos a procesar
 $databases = @(
@@ -211,8 +211,7 @@ while ($true) {
     $filterTables = Read-Host "¿Desea seleccionar tablas específicas? (s/n) [Default: n]"
     if ($filterTables.ToLower() -eq "s") {
         $inputTables = Read-Host "Ingrese los nombres de las tablas separados por coma (ej: Users, dbo.Orders)"
-        $tablesToScaffold = ($inputTables -split ",") | ForEach-Object { $.Trim() } | Where-Object { -not [string]::IsNullOrWhiteSpace($) }
-        
+        $tablesToScaffold = ($inputTables -split ",") | ForEach-Object { $_.Trim() } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
         if ($tablesToScaffold.Count -eq 0) {
             Write-Host "No se ingresaron tablas. Se cancela la operación." -ForegroundColor Yellow
             continue
