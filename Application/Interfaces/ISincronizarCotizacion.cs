@@ -1,9 +1,4 @@
-﻿using SincronizadorPqfLegacy.Application.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SincronizadorPqfLegacy.Application.Interfaces
+﻿namespace SincronizadorPqfLegacy.Application.Interfaces
 {
     public interface ISincronizarCotizacion
     {
