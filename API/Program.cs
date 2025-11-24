@@ -14,6 +14,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Reflection;
+using Infrastructure.Persistence.ProquifaDotNet.Contexts;
+using Infrastructure.Persistence.PConnectProquifaDotNet.Contexts;
+using Infrastructure.Persistence.PConnect.Contexts;
 
 // Configuración inicial de Serilog (bootstrap logger)
 Log.Logger = new LoggerConfiguration()
@@ -55,10 +58,49 @@ try
         options.UseSqlServer(cs);
     });
 
+    builder.Services.AddDbContext<ProquifaDotNetContext>(options =>
+    {
+        var cs = builder.Configuration.GetConnectionString("ProquifaDotNet");
+        if (string.IsNullOrWhiteSpace(cs))
+        {
+            Log.Fatal("ConnectionStrings:DocumentBuilder is null/empty.");
+            throw new InvalidOperationException("ConnectionStrings:DocumentBuilder is null/empty.");
+        }
+
+        options.UseSqlServer(cs);
+    });
+
+    builder.Services.AddDbContext<PConnectProquifaDotNetContext>(options =>
+    {
+        var cs = builder.Configuration.GetConnectionString("PConnectProquifaDotNet");
+        if (string.IsNullOrWhiteSpace(cs))
+        {
+            Log.Fatal("ConnectionStrings:DocumentBuilder is null/empty.");
+            throw new InvalidOperationException("ConnectionStrings:DocumentBuilder is null/empty.");
+        }
+
+        options.UseSqlServer(cs);
+    });
+
+    builder.Services.AddDbContext<PConnectContext>(options =>
+    {
+        var cs = builder.Configuration.GetConnectionString("PConnect");
+        if (string.IsNullOrWhiteSpace(cs))
+        {
+            Log.Fatal("ConnectionStrings:DocumentBuilder is null/empty.");
+            throw new InvalidOperationException("ConnectionStrings:DocumentBuilder is null/empty.");
+        }
+
+        options.UseSqlServer(cs);
+    });
+
+
+
     //Injections of dependencies
     builder.Services.AddScoped<ITableDummyService, TableDummyService>();
     builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-    
+    builder.Services.AddScoped<ISincronizarCotizacion, SincronizarCotizacionService>();
+
     //Validators
     builder.Services.AddScoped<TableDummyValidator>();
 

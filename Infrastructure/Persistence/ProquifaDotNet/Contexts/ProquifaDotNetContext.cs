@@ -14,6 +14,8 @@ public partial class ProquifaDotNetContext : DbContext
 
     public virtual DbSet<cotCotizacion> cotCotizacions { get; set; }
 
+    public virtual DbSet<vCotCotizacion> vCotCotizacions { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("Modern_Spanish_CI_AS");
@@ -39,6 +41,11 @@ public partial class ProquifaDotNetContext : DbContext
             entity.Property(e => e.TipoCambioEsDOF).HasDefaultValueSql("('0')");
 
             entity.HasOne(d => d.IdCotCotizacionOriginalNavigation).WithMany(p => p.InverseIdCotCotizacionOriginalNavigation).HasConstraintName("FK_cotCotizacion_cotCotizacion");
+        });
+
+        modelBuilder.Entity<vCotCotizacion>(entity =>
+        {
+            entity.ToView("vCotCotizacion");
         });
 
         OnModelCreatingPartial(modelBuilder);

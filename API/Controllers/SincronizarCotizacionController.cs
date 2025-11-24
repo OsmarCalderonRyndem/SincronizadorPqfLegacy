@@ -20,7 +20,7 @@ namespace SincronizadorPqfLegacy.API.Controllers
 
         #endregion
         [HttpPost("sincronizarCotizacion")]
-        public async Task<IActionResult> SincronizarCotizacion([FromBody] Guid idCotizacion)
+        public async Task<IActionResult> SincronizarCotizacion(Guid idCotizacion)
         {
             var report = await _sincronizarCotizacion.SincronizarCotizacion(idCotizacion);
             return Ok(report);
