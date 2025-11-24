@@ -117,6 +117,7 @@ try
     {
         cfg.AddProfile<ApplicationMappingProfile>();
         cfg.AddProfile<DomainMappingProfile>();
+        cfg.AddProfile<CotizaMappingProfile>();
     });
 
 

@@ -1,13 +1,11 @@
-﻿using Infrastructure.Persistence.PConnect.Contexts;
+﻿using AutoMapper;
+using Infrastructure.Persistence.PConnect.Contexts;
 using Infrastructure.Persistence.PConnect.Entities;
 using Infrastructure.Persistence.ProquifaDotNet.Contexts;
 using Infrastructure.Persistence.ProquifaDotNet.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SincronizadorPqfLegacy.Application.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SincronizadorPqfLegacy.Application.Services
 {
@@ -16,15 +14,18 @@ namespace SincronizadorPqfLegacy.Application.Services
         private readonly ProquifaDotNetContext _proquifaDotNetContext;
         private readonly PConnectContext _pConnectContext;
         private readonly ILogger<SincronizarCotizacionService> _logger;
+        private readonly IMapper _mapper;
 
         public SincronizarCotizacionService(
             ProquifaDotNetContext proquifaDotNetContext,
             PConnectContext pConnectContext,
-            ILogger<SincronizarCotizacionService> logger)
+            ILogger<SincronizarCotizacionService> logger,
+            IMapper mapper)
         {
             _proquifaDotNetContext = proquifaDotNetContext;
             _pConnectContext = pConnectContext;
             _logger = logger;
+            _mapper = mapper;
         }
         public async Task<Guid> SincronizarCotizacion(Guid idCotizacion)
         {
@@ -35,42 +36,30 @@ namespace SincronizadorPqfLegacy.Application.Services
                 // PASO 1: EXTRACT - Obtener cotización de origen
                 var cotizacionOrigen = await ExtraerCotizacionOrigenAsync(idCotizacion);
 
-
                 //TODO: AGREGAR VALIDACIONES
-  
 
                 // PASO 2: TRANSFORM - Convertir a entidad destino
                 var cotiza = TransformarCotizacion(cotizacionOrigen!);
 
                 // PASO 3: LOAD - Guardar en destino
-                //await CargarCotizacionDestinoAsync(cotizacionDestino);
+                await CargarCotizacAsync(cotiza);
 
                 // Commit
-                //await _pConnectContext.SaveChangesAsync();
-
-                //resultado.Exitoso = true;
-                //resultado.RegistrosSincronizados = 1;
-                //resultado.Mensaje = $"Cotización {folio} sincronizada exitosamente";
+                await _pConnectContext.SaveChangesAsync();
 
                 _logger.LogInformation("Cotización {Folio} sincronizada correctamente", idCotizacion);
                 return (Guid)cotizacionOrigen.IdCotCotizacion;
             }
             catch (Exception ex)
             {
-                //resultado.Exitoso = false;
-                //resultado.Mensaje = $"Error al sincronizar cotización: {ex.Message}";
-                //resultado.Errores.Add(ex.ToString());
-                //resultado.RegistrosConError = 1;
-
                 _logger.LogError(ex, "Error al sincronizar cotización {Folio}", idCotizacion);
                 throw;
             }
 
-            
+
         }
 
         #region EXTRACT - Extraer datos del origen
-
         /// <summary>
         /// PASO 1: EXTRACT
         /// Obtiene la cotización desde ProquifaDotNet (origen)
@@ -91,12 +80,10 @@ namespace SincronizadorPqfLegacy.Application.Services
 
             return cotizacion;
         }
-
         #endregion
 
 
         #region TRANSFORM - Transformar datos
-
         /// <summary>
         /// PASO 2: TRANSFORM
         /// Convierte los datos de la vista a la entidad Legacy (Cotiza)
@@ -111,73 +98,41 @@ namespace SincronizadorPqfLegacy.Application.Services
         /// <returns>Entidad lista para insertar en PConnect</returns>
         private Cotiza TransformarCotizacion(vCotizacionesTransformadasETL vista)
         {
-            _logger.LogDebug("Transformando cotización: {Clave}", vista.Param_0);
+            _logger.LogDebug("Transformando cotización: {Clave}", vista.Clave);
 
-            var cotiza = new Cotiza
-            {
-                // Orden según UPDATE de BD
-                Clave = vista.Param_0,
-                Cliente = vista.Param_1,
-                Contacto = vista.Param_2,
-                Vendedor = vista.Param_3,
-                Moneda = vista.Param_4,
-                Parciales = vista.Param_5,
-                CPago = vista.Param_6,
-                Zona = vista.Param_7,
-                Estado = vista.Param_8,
-                FEnvio = vista.Param_9,
-                IMoneda = vista.Param_10,
-                Cotizo = vista.Param_11,
-                Factura = vista.Param_12,
-                HEntrada = vista.Param_13,
-                MEntrada = vista.Param_14,
-                MSalida = vista.Param_15,
-                FechaClasif = vista.Param_16,
-                FechaCierre = vista.Param_17,
-                InfoFacturacion = vista.Param_18,
-                Abierto = vista.Param_19,
-                FS = vista.Param_20,
-                GravaIVA = vista.Param_21,
-                Generada = vista.Param_22,
-                Tipo = vista.Param_23,
-                DeSistema = vista.Param_24,
-                Nombre = vista.Param_25,
-                HSalida = vista.Param_26,
-                idContacto = vista.Param_27,
-
-                //// Campos adicionales
-                //Fecha = vista.Fecha,
-                //Vigencia = vista.Vigencia,
-                //Observa = vista.Observa,
-                //ObservaC = vista.ObservaC,
-                //Confirmo = vista.Confirmo,
-                //CanceladaDesde = vista.CanceladaDesde,
-                //Lugar = vista.Lugar,
-                //Orden = vista.Orden,
-
-                //// FKs
-                //FK01_idCliente = null,
-                //FK02_DoctosR = null,
-                //FK03_idVisita = null
-            };
-
-            // Validaciones
-            if (string.IsNullOrEmpty(cotiza.Vigencia))
-                cotiza.Vigencia = "30 días";
-
-            if (string.IsNullOrWhiteSpace(cotiza.Cliente))
-                cotiza.Cliente = "CLIENTE NO ESPECIFICADO";
-
-            if (string.IsNullOrWhiteSpace(cotiza.Moneda))
-                cotiza.Moneda = "MXN";
-
-            if (string.IsNullOrWhiteSpace(cotiza.Estado))
-                cotiza.Estado = "NUEVA";
+            var cotiza = _mapper.Map<Cotiza>(vista);
 
             _logger.LogDebug("Transformación completada: {Clave}", cotiza.Clave);
             return cotiza;
         }
+        #endregion
 
+        #region LOAD - Cargar en destino
+        private async Task CargarCotizacAsync(Cotiza cotizacion)
+        {
+            _logger.LogDebug("Cargando cotización en PConnect: {Clave}", cotizacion.Clave);
+
+            var cotizacionExistente = await _pConnectContext.Cotizas
+                .Where(c => c.Clave == cotizacion.Clave)
+                .FirstOrDefaultAsync();
+
+            if (cotizacionExistente != null)
+            {
+                // ACTUALIZAR
+                _logger.LogInformation("Actualizando cotización existente: {Clave} (PK: {PK})",
+                    cotizacion.Clave,
+                    cotizacionExistente.PK_Folio);
+
+                cotizacionExistente = cotizacion;
+                _pConnectContext.Cotizas.Update(cotizacionExistente);
+            }
+            else
+            {
+                // INSERTAR
+                _logger.LogInformation("Insertando nueva cotización: {Clave}", cotizacion.Clave);
+                await _pConnectContext.Cotizas.AddAsync(cotizacion);
+            }
+        }
         #endregion
     }
 }
