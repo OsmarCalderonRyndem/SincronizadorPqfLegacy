@@ -1,6 +1,5 @@
-﻿using SincronizadorPqfLegacy.Application.DTOs;
+﻿using Microsoft.AspNetCore.Mvc;
 using SincronizadorPqfLegacy.Application.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 
 namespace SincronizadorPqfLegacy.API.Controllers
 {

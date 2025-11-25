@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Infrastructure.Persistence.PConnect.Contexts;
 using Infrastructure.Persistence.PConnect.Entities;
+using Infrastructure.Persistence.PConnectProquifaDotNet.Contexts;
+using Infrastructure.Persistence.PConnectProquifaDotNet.Entities;
 using Infrastructure.Persistence.ProquifaDotNet.Contexts;
 using Infrastructure.Persistence.ProquifaDotNet.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -13,17 +15,20 @@ namespace SincronizadorPqfLegacy.Application.Services
     {
         private readonly ProquifaDotNetContext _proquifaDotNetContext;
         private readonly PConnectContext _pConnectContext;
+        private readonly PConnectProquifaDotNetContext _pConnectProquifaDotNetContext;
         private readonly ILogger<SincronizarCotizacionService> _logger;
         private readonly IMapper _mapper;
 
         public SincronizarCotizacionService(
             ProquifaDotNetContext proquifaDotNetContext,
             PConnectContext pConnectContext,
+            PConnectProquifaDotNetContext pConnectProquifaDotNetContext,
             ILogger<SincronizarCotizacionService> logger,
             IMapper mapper)
         {
             _proquifaDotNetContext = proquifaDotNetContext;
             _pConnectContext = pConnectContext;
+            _pConnectProquifaDotNetContext = pConnectProquifaDotNetContext;
             _logger = logger;
             _mapper = mapper;
         }
@@ -38,14 +43,17 @@ namespace SincronizadorPqfLegacy.Application.Services
 
                 //TODO: AGREGAR VALIDACIONES
 
+                // Cargar en tabla de control
+                var cotizacionTablaControl = await CargarCotizacionTablaDeControl(idCotizacion, false, cotizacionOrigen);
+
                 // PASO 2: TRANSFORM - Convertir a entidad destino
-                var cotiza = TransformarCotizacion(cotizacionOrigen!);
+                var cotizacionTransformada = TransformarCotizacion(cotizacionOrigen!);
 
                 // PASO 3: LOAD - Guardar en destino
-                await CargarCotizacAsync(cotiza);
+                var cotiza = await CargarCotizacAsync(cotizacionTransformada);
 
-                // Commit
-                await _pConnectContext.SaveChangesAsync();
+                // Actualizar tabla de control con PK de cotización legacy
+                cotizacionTablaControl = await CargarCotizacionTablaDeControl(idCotizacion, false, cotizacionOrigen, cotiza);              
 
                 _logger.LogInformation("Cotización {Folio} sincronizada correctamente", idCotizacion);
                 return (Guid)cotizacionOrigen.IdCotCotizacion;
@@ -55,8 +63,6 @@ namespace SincronizadorPqfLegacy.Application.Services
                 _logger.LogError(ex, "Error al sincronizar cotización {Folio}", idCotizacion);
                 throw;
             }
-
-
         }
 
         #region EXTRACT - Extraer datos del origen
@@ -108,7 +114,7 @@ namespace SincronizadorPqfLegacy.Application.Services
         #endregion
 
         #region LOAD - Cargar en destino
-        private async Task CargarCotizacAsync(Cotiza cotizacion)
+        private async Task<Cotiza> CargarCotizacAsync(Cotiza cotizacion)
         {
             _logger.LogDebug("Cargando cotización en PConnect: {Clave}", cotizacion.Clave);
 
@@ -132,6 +138,51 @@ namespace SincronizadorPqfLegacy.Application.Services
                 _logger.LogInformation("Insertando nueva cotización: {Clave}", cotizacion.Clave);
                 await _pConnectContext.Cotizas.AddAsync(cotizacion);
             }
+
+            // Commit
+            await _pConnectContext.SaveChangesAsync();
+            return cotizacion;
+        }
+        #endregion
+
+        #region LOAD - Mapear e insertar en tabla de control
+        private async Task<Cotizacione> CargarCotizacionTablaDeControl(Guid idCotizacion, bool sincronizada, vCotizacionesTransformadasETL cotCotizacion, Cotiza? cotiza = null)
+        {
+            _logger.LogDebug("Cargando cotización en PConnectProquifaDotNet: {CotizacionPQF}", idCotizacion);
+            var nuevaCotizacionEnTablaControl = new Cotizacione();
+
+            var cotizacionEnTablaControl = await _pConnectProquifaDotNetContext.Cotizaciones
+                .Where(c => c.CotizacionPQF == idCotizacion)
+                .FirstOrDefaultAsync();
+
+            if (cotizacionEnTablaControl != null)
+            {
+                // ACTUALIZAR
+                _logger.LogInformation("Actualizando cotización existente: {Folio}.",cotCotizacion.Clave);
+                cotizacionEnTablaControl.RegistroCompleto = true;
+                cotizacionEnTablaControl.CotizacionLegacy = cotiza?.PK_Folio;
+                cotizacionEnTablaControl.FechaUltimaActualizacionLegacy = DateTime.Now;
+                _pConnectProquifaDotNetContext.Cotizaciones.Update(cotizacionEnTablaControl);
+                nuevaCotizacionEnTablaControl = cotizacionEnTablaControl;
+            }
+            else
+            {
+                // INSERTAR
+                _logger.LogInformation("Insertando nueva cotización: {Folio}", cotCotizacion.Clave);
+                nuevaCotizacionEnTablaControl = new Cotizacione()
+                {
+                    CotizacionPQF = idCotizacion,
+                    Folio = cotCotizacion.Clave ?? "",
+                    Insertado = true,
+                    FechaRegistro = DateTime.Now,
+                    Actualizado = false,
+                    FechaUltimaActualizacion = DateTime.Now,
+                    RegistroCompleto = true,
+                };
+                await _pConnectProquifaDotNetContext.Cotizaciones.AddAsync(nuevaCotizacionEnTablaControl);
+            }
+            await _pConnectProquifaDotNetContext.SaveChangesAsync();
+            return nuevaCotizacionEnTablaControl;
         }
         #endregion
     }

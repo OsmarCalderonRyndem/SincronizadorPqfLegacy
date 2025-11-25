@@ -16,9 +16,13 @@ public partial class PConnectProquifaDotNetContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.UseCollation("SQL_Latin1_General_CP1_CI_AS");
+
         modelBuilder.Entity<Cotizacione>(entity =>
         {
-            entity.ToTable(tb => tb.HasTrigger("TR_Cotizaciones_PreventETL"));
+            entity.ToTable(tb => tb.HasTrigger("TR_Cotizaciones_PreventErvapharma"));
+
+            entity.Property(e => e.IdMapeoProquifaLegacy).HasDefaultValueSql("(newid())");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.PConnectProquifaDotNet.Entities;
 
-[Keyless]
 public partial class Cotizacione
 {
     public int? CotizacionLegacy { get; set; }
@@ -31,4 +30,7 @@ public partial class Cotizacione
 
     [Column(TypeName = "datetime")]
     public DateTime? FechaUltimaActualizacionLegacy { get; set; }
+
+    [Key]
+    public Guid IdMapeoProquifaLegacy { get; set; }
 }
