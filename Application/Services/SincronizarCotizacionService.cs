@@ -64,7 +64,7 @@ namespace SincronizadorPqfLegacy.Application.Services
                 // ==========================================
                 await ActualizarControlConPKAsync(controlDto, cotizaInsertada);
 
-                _logger.LogInformation("✓ Cotización {Id} sincronizada correctamente. PK Legacy: {PK}",
+                _logger.LogInformation("Cotización {Id} sincronizada correctamente. PK Legacy: {PK}",
                     idCotizacion,
                     cotizaInsertada.PK_Folio);
 
@@ -157,47 +157,6 @@ namespace SincronizadorPqfLegacy.Application.Services
             return resultado;
         }
         #endregion
-
-        //#region LOAD - Mapear e insertar en tabla de control
-        //private async Task<Cotizacione> CargarCotizacionTablaDeControl(Guid idCotizacion, bool sincronizada, vCotizacionesTransformadasETL cotCotizacion, Cotiza? cotiza = null)
-        //{
-        //    _logger.LogDebug("Cargando cotización en PConnectProquifaDotNet: {CotizacionPQF}", idCotizacion);
-        //    var nuevaCotizacionEnTablaControl = new Cotizacione();
-
-        //    var cotizacionEnTablaControl = await _pConnectProquifaDotNetContext.Cotizaciones
-        //        .Where(c => c.CotizacionPQF == idCotizacion)
-        //        .FirstOrDefaultAsync();
-
-        //    if (cotizacionEnTablaControl != null)
-        //    {
-        //        // ACTUALIZAR
-        //        _logger.LogInformation("Actualizando cotización existente: {Folio}.",cotCotizacion.Clave);
-        //        cotizacionEnTablaControl.RegistroCompleto = true;
-        //        cotizacionEnTablaControl.CotizacionLegacy = cotiza?.PK_Folio;
-        //        cotizacionEnTablaControl.FechaUltimaActualizacionLegacy = DateTime.Now;
-        //        _pConnectProquifaDotNetContext.Cotizaciones.Update(cotizacionEnTablaControl);
-        //        nuevaCotizacionEnTablaControl = cotizacionEnTablaControl;
-        //    }
-        //    else
-        //    {
-        //        // INSERTAR
-        //        _logger.LogInformation("Insertando nueva cotización: {Folio}", cotCotizacion.Clave);
-        //        nuevaCotizacionEnTablaControl = new Cotizacione()
-        //        {
-        //            CotizacionPQF = idCotizacion,
-        //            Folio = cotCotizacion.Clave ?? "",
-        //            Insertado = true,
-        //            FechaRegistro = DateTime.Now,
-        //            Actualizado = false,
-        //            FechaUltimaActualizacion = DateTime.Now,
-        //            RegistroCompleto = true,
-        //        };
-        //        await _pConnectProquifaDotNetContext.Cotizaciones.AddAsync(nuevaCotizacionEnTablaControl);
-        //    }
-        //    await _pConnectProquifaDotNetContext.SaveChangesAsync();
-        //    return nuevaCotizacionEnTablaControl;
-        //}
-        //#endregion
 
         #region CONTROL
 
