@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
 using Infrastructure.Persistence.PConnect.Entities;
-using Infrastructure.Persistence.ProquifaDotNet.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using SincronizadorPqfLegacy.Domain.DTOs;
 
 namespace SincronizadorPqfLegacy.Infrastructure.Mappers
 {
@@ -11,18 +8,18 @@ namespace SincronizadorPqfLegacy.Infrastructure.Mappers
     {
         public CotizaMappingProfile()
         {
-            CreateMap<vCotizacionesTransformadasETL, Cotiza>()
+            CreateMap<CotizacionOrigenDto, CotizacionLegacyDto>()
             // =============================================
             // IGNORAR CAMPOS QUE NO SE DEBEN MAPEAR
             // =============================================
             .ForMember(dest => dest.PK_Folio, opt => opt.Ignore()) // IDENTITY - no mapear
-            
+
             // =============================================
             // MAPEO AUTOMÁTICO (mismo nombre de propiedad)
             // =============================================
             // AutoMapper mapea automáticamente propiedades con el mismo nombre:
-            
-            
+
+
             // =============================================
             // CAMPOS QUE VAN NULL (no existen en origen)
             // =============================================
@@ -31,12 +28,12 @@ namespace SincronizadorPqfLegacy.Infrastructure.Mappers
             .ForMember(dest => dest.CanceladaDesde, opt => opt.MapFrom(src => (string?)null))
             .ForMember(dest => dest.Lugar, opt => opt.MapFrom(src => (string?)null))
             .ForMember(dest => dest.Orden, opt => opt.MapFrom(src => (int?)null))
-            
+
             // Foreign Keys
             .ForMember(dest => dest.FK01_idCliente, opt => opt.MapFrom(src => (int?)null))
             .ForMember(dest => dest.FK02_DoctosR, opt => opt.MapFrom(src => (int?)null))
             .ForMember(dest => dest.FK03_idVisita, opt => opt.MapFrom(src => (int?)null))
-            
+
             // =============================================
             // LÓGICA POST-MAPEO (Reglas de negocio)
             // =============================================

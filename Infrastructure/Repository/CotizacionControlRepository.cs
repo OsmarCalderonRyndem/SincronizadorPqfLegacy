@@ -163,12 +163,15 @@ public class CotizacionControlRepository : ICotizacionControlRepository
                     $"No se puede actualizar. Registro con IdCotizacion {cotizacion.CotizacionPQF} no existe.");
             }
 
+            var idAux = entidadExistente.IdMapeoProquifaLegacy;
             // Mapear DTO → Entity (actualiza los valores)
             _mapper.Map(cotizacion, entidadExistente);
 
+            
             // Actualizar campos de auditoría
             entidadExistente.FechaUltimaActualizacion = DateTime.Now;
             entidadExistente.Actualizado = true;
+            entidadExistente.IdMapeoProquifaLegacy = idAux;
 
             // Actualizar en BD
             _context.Cotizaciones.Update(entidadExistente);
