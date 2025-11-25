@@ -9,7 +9,7 @@ public class CotizacionControlDto
     /// <summary>
     /// ID único del registro de control
     /// </summary>
-    public Guid? IdCotizacion { get; set; }
+    public Guid? IdMapeoProquifaLegacy { get; set; }
 
     /// <summary>
     /// ID de la cotización en ProquifaDotNet
