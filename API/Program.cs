@@ -1,22 +1,24 @@
-﻿using SincronizadorPqfLegacy.API.ExceptionMiddleware;
+﻿using FluentValidation;
+using FluentValidation.AspNetCore;
+using Infrastructure.Persistence.PConnect.Contexts;
+using Infrastructure.Persistence.PConnectProquifaDotNet.Contexts;
+using Infrastructure.Persistence.ProquifaDotNet.Contexts;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+using SincronizadorPqfLegacy.API.ExceptionMiddleware;
 using SincronizadorPqfLegacy.Application.Factorys;
 using SincronizadorPqfLegacy.Application.Interfaces;
 using SincronizadorPqfLegacy.Application.Services;
 using SincronizadorPqfLegacy.Application.Validators;
 using SincronizadorPqfLegacy.Domain.Interfaces;
+using SincronizadorPqfLegacy.Domain.Interfaces.Repositories;
 using SincronizadorPqfLegacy.Infrastructure.Mappers;
 using SincronizadorPqfLegacy.Infrastructure.Persistence;
 using SincronizadorPqfLegacy.Infrastructure.Persistence.Context;
+using SincronizadorPqfLegacy.Infrastructure.Repositories;
 using SincronizadorPqfLegacy.Infrastructure.Repository;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
 using System.Reflection;
-using Infrastructure.Persistence.ProquifaDotNet.Contexts;
-using Infrastructure.Persistence.PConnectProquifaDotNet.Contexts;
-using Infrastructure.Persistence.PConnect.Contexts;
 
 // Configuración inicial de Serilog (bootstrap logger)
 Log.Logger = new LoggerConfiguration()
@@ -107,6 +109,9 @@ try
     //Repositories
     builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
     builder.Services.AddScoped<TableDummyRepository>();
+    builder.Services.AddScoped<ICotizacionOrigenRepository, CotizacionOrigenRepository>();
+    builder.Services.AddScoped<ICotizacionLegacyRepository, CotizacionLegacyRepository>();
+    builder.Services.AddScoped<ICotizacionControlRepository, CotizacionControlRepository>();
 
     //FluentValidation
     builder.Services.AddFluentValidationAutoValidation(); // Para ASP.NET Core
@@ -118,6 +123,7 @@ try
         cfg.AddProfile<ApplicationMappingProfile>();
         cfg.AddProfile<DomainMappingProfile>();
         cfg.AddProfile<CotizaMappingProfile>();
+        cfg.AddProfile<RepositoryMappingProfile>();
     });
 
 
