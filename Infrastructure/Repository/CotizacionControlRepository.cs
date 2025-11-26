@@ -125,7 +125,7 @@ public class CotizacionControlRepository : ICotizacionControlRepository
             // Mapear Entity → DTO (ahora con IdCotizacion asignado)
             var dtoInsertado = _mapper.Map<CotizacionControlDto>(entidad);
 
-            _logger.LogInformation("✓ Registro de control insertado: CotizacionPQF={PQF}, Folio={Folio}",
+            _logger.LogInformation("Registro de control insertado: CotizacionPQF={PQF}, Folio={Folio}",
                 dtoInsertado.CotizacionPQF,
                 dtoInsertado.Folio);
 
@@ -180,7 +180,7 @@ public class CotizacionControlRepository : ICotizacionControlRepository
             // Mapear Entity → DTO
             var dtoActualizado = _mapper.Map<CotizacionControlDto>(entidadExistente);
 
-            _logger.LogInformation("✓ Registro de control actualizado: IdCotizacion={IdCot}, CotizacionPQF={PQF}",
+            _logger.LogInformation("Registro de control actualizado: IdCotizacion={IdCot}, CotizacionPQF={PQF}",
                 dtoActualizado.CotizacionPQF,
                 dtoActualizado.CotizacionPQF);
 

@@ -119,7 +119,7 @@ public class CotizacionLegacyRepository : ICotizacionLegacyRepository
             // Mapear Entity → DTO (ahora con PK_Folio asignado)
             var dtoInsertado = _mapper.Map<CotizacionLegacyDto>(entidad);
 
-            _logger.LogInformation("✓ Cotización legacy insertada: {Clave}, PK: {PK}",
+            _logger.LogInformation("Cotización legacy insertada: {Clave}, PK: {PK}",
                 dtoInsertado.Clave,
                 dtoInsertado.PK_Folio);
 
@@ -164,7 +164,7 @@ public class CotizacionLegacyRepository : ICotizacionLegacyRepository
             // Mapear Entity → DTO
             var dtoActualizado = _mapper.Map<CotizacionLegacyDto>(entidadExistente);
 
-            _logger.LogInformation("✓ Cotización legacy actualizada: {Clave}, PK: {PK}",
+            _logger.LogInformation("Cotización legacy actualizada: {Clave}, PK: {PK}",
                 dtoActualizado.Clave,
                 dtoActualizado.PK_Folio);
 
