@@ -1,6 +1,6 @@
 ﻿using SincronizadorPqfLegacy.Domain.DTOs;
 
-namespace SincronizadorPqfLegacy.Domain.Interfaces.Repositories;
+namespace SincronizadorPqfLegacy.Domain.Interfaces.Repository;
 
 public interface IPartidaCotizacionOrigenRepository
 {

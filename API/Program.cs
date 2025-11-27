@@ -14,6 +14,7 @@ using SincronizadorPqfLegacy.Application.Services;
 using SincronizadorPqfLegacy.Application.Validators;
 using SincronizadorPqfLegacy.Domain.Interfaces;
 using SincronizadorPqfLegacy.Domain.Interfaces.Repositories;
+using SincronizadorPqfLegacy.Domain.Interfaces.Repository;
 using SincronizadorPqfLegacy.Infrastructure.Mappers;
 using SincronizadorPqfLegacy.Infrastructure.Persistence;
 using SincronizadorPqfLegacy.Infrastructure.Persistence.Context;
@@ -121,6 +122,8 @@ try
     builder.Services.AddScoped<ICotizacionOrigenRepository, CotizacionOrigenRepository>();
     builder.Services.AddScoped<ICotizacionLegacyRepository, CotizacionLegacyRepository>();
     builder.Services.AddScoped<ICotizacionControlRepository, CotizacionControlRepository>();
+    builder.Services.AddScoped<IPartidaCotizacionOrigenRepository, PartidaCotizacionOrigenRepository>();
+    builder.Services.AddScoped<IPartidaCotizacionLegacyRepository, PartidaCotizacionLegacyRepository>();
 
     //FluentValidation
     builder.Services.AddFluentValidationAutoValidation(); // Para ASP.NET Core
