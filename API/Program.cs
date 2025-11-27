@@ -102,6 +102,7 @@ try
     builder.Services.AddScoped<ITableDummyService, TableDummyService>();
     builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
     builder.Services.AddScoped<ISincronizarCotizacion, SincronizarCotizacionService>();
+    builder.Services.AddScoped<ISincronizacionMultipleService, SincronizacionMultipleService>();
 
     //Validators
     builder.Services.AddScoped<TableDummyValidator>();
