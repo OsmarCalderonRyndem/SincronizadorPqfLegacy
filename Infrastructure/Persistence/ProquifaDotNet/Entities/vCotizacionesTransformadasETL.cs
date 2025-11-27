@@ -9,7 +9,7 @@ namespace Infrastructure.Persistence.ProquifaDotNet.Entities;
 [Keyless]
 public partial class vCotizacionesTransformadasETL
 {
-    public Guid? IdCotCotizacion { get; set; }
+    public Guid IdCotCotizacion { get; set; }
 
     [StringLength(11)]
     [Unicode(false)]
