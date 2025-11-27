@@ -6,6 +6,7 @@ using Infrastructure.Persistence.ProquifaDotNet.Contexts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using SincronizadorPqfLegacy.API.BackgroundServices;
 using SincronizadorPqfLegacy.API.ExceptionMiddleware;
 using SincronizadorPqfLegacy.Application.Factorys;
 using SincronizadorPqfLegacy.Application.Interfaces;
@@ -102,6 +103,14 @@ try
     builder.Services.AddScoped<ITableDummyService, TableDummyService>();
     builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
     builder.Services.AddScoped<ISincronizarCotizacion, SincronizarCotizacionService>();
+    builder.Services.AddScoped<ISincronizacionMultipleService, SincronizacionMultipleService>();
+
+    // Registrar Background Service (solo si esta habilitado)
+    var habilitado = builder.Configuration.GetValue<bool>("SincronizacionAutomatica:Habilitado", false);
+    if (habilitado)
+    {
+        builder.Services.AddHostedService<SincronizacionBackgroundService>();
+    }
 
     //Validators
     builder.Services.AddScoped<TableDummyValidator>();
