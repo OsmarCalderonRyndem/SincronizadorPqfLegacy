@@ -5,6 +5,7 @@ namespace SincronizadorPqfLegacy.Domain.Interfaces;
 public interface IPartidaCotizacionLegacyRepository
 {
     Task<IEnumerable<PartidaCotizacionLegacyDto>> ObtenerPorFolioAsync(int pkFolio);
+    Task<IEnumerable<PartidaCotizacionLegacyDto>> ObtenerPorIdAsync(int id);
 
     Task<PartidaCotizacionLegacyDto> InsertarAsync(PartidaCotizacionLegacyDto partida);
 

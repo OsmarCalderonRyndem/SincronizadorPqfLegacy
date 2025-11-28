@@ -51,6 +51,7 @@ public class RepositoryMappingProfile : Profile
             .ForMember(dest => dest.TEntrega, opt => opt.MapFrom(src => src.TEngrega))
             .ForMember(dest => dest.NotasCancelacion, opt => opt.Ignore())
             .ForMember(dest => dest.NotasFExpress, opt => opt.Ignore())
-            .ForMember(dest => dest.FK05_idAutorizacion, opt => opt.Ignore());
+            .ForMember(dest => dest.FK05_idAutorizacion, opt => opt.Ignore())
+            .ForMember(dest => dest.FK04_Fabricante, opt => opt.Ignore());
     }
 }

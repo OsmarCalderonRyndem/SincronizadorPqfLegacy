@@ -110,4 +110,28 @@ public class PartidaCotizacionLegacyRepository : IPartidaCotizacionLegacyReposit
             throw;
         }
     }
+
+    public async Task<IEnumerable<PartidaCotizacionLegacyDto>> ObtenerPorIdAsync(int id)
+    {
+        try
+        {
+            _logger.LogDebug("Obteniendo partidas de folio legacy: {Folio}", id);
+
+            var entidades = await _context.PCotizas
+                .AsNoTracking()
+                .Where(p => p.idPCotiza == id)
+                .ToListAsync();
+
+            var dtos = _mapper.Map<IEnumerable<PartidaCotizacionLegacyDto>>(entidades);
+
+            _logger.LogDebug("Partidas legacy obtenidas: {Count}", dtos.Count());
+
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener partidas de folio: {Folio}", id);
+            throw;
+        }
+    }
 }

@@ -123,7 +123,7 @@ public class SincronizarPartidasService : ISincronizarPartidasService
 
         partidaLegacy.FK02_Cotiza = pkFolio;
 
-        var partidaExistente = await BuscarPartidaExistenteAsync(pkFolio, partidaOrigen.Partida);
+        var partidaExistente = await BuscarPartidaExistenteAsync(partidaOrigen.idPCotiza ?? 0, partidaOrigen.Partida);
 
         if (partidaExistente != null)
         {
@@ -142,7 +142,7 @@ public class SincronizarPartidasService : ISincronizarPartidasService
     }
 
     private async Task<PartidaCotizacionLegacyDto?> BuscarPartidaExistenteAsync(
-        int pkFolio,
+        int idPartida,
         int? numeroPartida)
     {
         if (!numeroPartida.HasValue)
@@ -150,7 +150,7 @@ public class SincronizarPartidasService : ISincronizarPartidasService
             return null;
         }
 
-        var partidasExistentes = await _legacyRepo.ObtenerPorFolioAsync(pkFolio);
+        var partidasExistentes = await _legacyRepo.ObtenerPorFolioAsync(idPartida);
 
         return partidasExistentes.FirstOrDefault(p => p.Partida == numeroPartida);
     }
