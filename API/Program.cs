@@ -105,6 +105,7 @@ try
     builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
     builder.Services.AddScoped<ISincronizarCotizacion, SincronizarCotizacionService>();
     builder.Services.AddScoped<ISincronizacionMultipleService, SincronizacionMultipleService>();
+    builder.Services.AddScoped<ISincronizarPartidasService, SincronizarPartidasService>();
 
     // Registrar Background Service (solo si esta habilitado)
     var habilitado = builder.Configuration.GetValue<bool>("SincronizacionAutomatica:Habilitado", false);

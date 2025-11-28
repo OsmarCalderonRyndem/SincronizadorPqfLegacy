@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using SincronizadorPqfLegacy.Application.Interfaces;
 using SincronizadorPqfLegacy.Domain.DTOs;
 using SincronizadorPqfLegacy.Domain.Interfaces;
-using SincronizadorPqfLegacy.Domain.Interfaces.Repositories;
 using SincronizadorPqfLegacy.Domain.Interfaces.Repository;
 
 namespace SincronizadorPqfLegacy.Application.Services;
