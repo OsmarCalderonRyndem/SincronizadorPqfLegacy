@@ -16,6 +16,8 @@ public partial class ProquifaDotNetContext : DbContext
 
     public virtual DbSet<vCotizacionesTransformadasETL> vCotizacionesTransformadasETLs { get; set; }
 
+    public virtual DbSet<vPartidasCotizacionTransformadasETL> vPartidasCotizacionTransformadasETLs { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<cotCotizacion>(entity =>
@@ -42,6 +44,11 @@ public partial class ProquifaDotNetContext : DbContext
         modelBuilder.Entity<vCotizacionesTransformadasETL>(entity =>
         {
             entity.ToView("vCotizacionesTransformadasETL");
+        });
+
+        modelBuilder.Entity<vPartidasCotizacionTransformadasETL>(entity =>
+        {
+            entity.ToView("vPartidasCotizacionTransformadasETL");
         });
 
         OnModelCreatingPartial(modelBuilder);

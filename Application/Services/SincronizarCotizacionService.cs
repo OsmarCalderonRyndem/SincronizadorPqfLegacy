@@ -11,6 +11,7 @@ namespace SincronizadorPqfLegacy.Application.Services
         private readonly ICotizacionOrigenRepository _cotizacionOrigenRepo;
         private readonly ICotizacionLegacyRepository _cotizacionLegacyRepo;
         private readonly ICotizacionControlRepository _cotizacionControlRepo;
+        private readonly ISincronizarPartidasService _partidasService;
         private readonly IMapper _mapper;
         private readonly ILogger<SincronizarCotizacionService> _logger;
 
@@ -18,12 +19,14 @@ namespace SincronizadorPqfLegacy.Application.Services
             ICotizacionOrigenRepository cotizacionOrigenRepo,
             ICotizacionLegacyRepository cotizacionLegacyRepo,
             ICotizacionControlRepository cotizacionControlRepo,
+            ISincronizarPartidasService partidasService,
             IMapper mapper,
             ILogger<SincronizarCotizacionService> logger)
         {
             _cotizacionOrigenRepo = cotizacionOrigenRepo;
             _cotizacionLegacyRepo = cotizacionLegacyRepo;
             _cotizacionControlRepo = cotizacionControlRepo;
+            _partidasService = partidasService;
             _mapper = mapper;
             _logger = logger;
         }
@@ -36,13 +39,7 @@ namespace SincronizadorPqfLegacy.Application.Services
                 // ==========================================
                 // PASO 1: EXTRACT - Obtener de origen
                 // ==========================================
-                var cotizacionOrigenDto = await ExtraerCotizacionOrigenAsync(idCotizacion);
-
-                if (cotizacionOrigenDto == null)
-                {
-                    throw new InvalidOperationException(
-                        $"Cotización {idCotizacion} no encontrada en sistema origen");
-                }
+                var cotizacionOrigenDto = await ExtraerCotizacionOrigenAsync(idCotizacion);              
 
                 // ==========================================
                 // PASO 1.5: Registrar inicio en tabla control
@@ -55,9 +52,14 @@ namespace SincronizadorPqfLegacy.Application.Services
                 var cotizacionLegacyDto = TransformarCotizacion(cotizacionOrigenDto);
 
                 // ==========================================
-                // PASO 3: LOAD - Guardar en Legacy
+                // PASO 3: LOAD - Guardar Cotizacion en Legacy
                 // ==========================================
                 var cotizaInsertada = await CargarCotizacAsync(cotizacionLegacyDto);
+
+                // ==========================================
+                // PASO 3.5: LOAD - Guardar Partidas de cotizacion en Legacy
+                // ==========================================
+                await SincronizarPartidasAsync(idCotizacion, cotizaInsertada.PK_Folio);
 
                 // ==========================================
                 // PASO 4: Actualizar tabla de control con PK
@@ -87,6 +89,12 @@ namespace SincronizadorPqfLegacy.Application.Services
             _logger.LogDebug("Extrayendo cotización con folio: {Folio}", idCotCotizacion);
 
             var cotizacion = await _cotizacionOrigenRepo.ObtenerPorIdAsync(idCotCotizacion);
+
+            if (cotizacion == null)
+            {
+                throw new InvalidOperationException(
+                    $"Cotización {idCotCotizacion} no encontrada en sistema origen");
+            }
 
             if (cotizacion != null)
             {
@@ -217,5 +225,25 @@ namespace SincronizadorPqfLegacy.Application.Services
         }
 
         #endregion
+
+
+
+        private async Task SincronizarPartidasAsync(Guid idCotizacion, int pkFolio)
+        {
+            try
+            {
+                _logger.LogInformation("Iniciando sincronizacion de partidas para cotizacion: {Id}", idCotizacion);
+
+                await _partidasService.SincronizarPartidasAsync(idCotizacion, pkFolio);
+
+                _logger.LogInformation("Partidas sincronizadas exitosamente para cotizacion: {Id}", idCotizacion);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al sincronizar partidas de cotizacion: {Id}", idCotizacion);
+                throw;
+            }
+        }
     }
+
 }

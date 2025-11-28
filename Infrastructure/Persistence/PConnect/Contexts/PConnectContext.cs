@@ -14,10 +14,10 @@ public partial class PConnectContext : DbContext
 
     public virtual DbSet<Cotiza> Cotizas { get; set; }
 
+    public virtual DbSet<PCotiza> PCotizas { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.UseCollation("Modern_Spanish_CI_AS");
-
         modelBuilder.Entity<Cotiza>(entity =>
         {
             entity.HasIndex(e => e.IMoneda, "IMonedaPesos").HasFilter("([IMoneda]='Pesos')");
@@ -47,6 +47,31 @@ public partial class PConnectContext : DbContext
             entity.Property(e => e.Vendedor).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.Vigencia).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.Zona).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+        });
+
+        modelBuilder.Entity<PCotiza>(entity =>
+        {
+            entity.HasIndex(e => e.Estado, "indexPrueba5").HasFilter("([PCotizas].[estado]<>'Recotizada')");
+
+            entity.Property(e => e.Clasif)
+                .IsFixedLength()
+                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.Clave).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.Codigo).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.Concepto).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.Destino).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.Estado).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.FK01_PCotizaOrigen).HasDefaultValue(0);
+            entity.Property(e => e.Fabrica).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.HEnvio).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.MEnvio)
+                .IsFixedLength()
+                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.Nota).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.ObservaE).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.Presentacion).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.TEntrega).UseCollation("SQL_Latin1_General_CP1_CI_AS");
+            entity.Property(e => e.Unidades).UseCollation("SQL_Latin1_General_CP1_CI_AS");
         });
 
         OnModelCreatingPartial(modelBuilder);

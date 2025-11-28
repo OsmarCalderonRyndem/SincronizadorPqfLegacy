@@ -30,5 +30,28 @@ public class RepositoryMappingProfile : Profile
         // =====================================================
         CreateMap<Cotizacione, CotizacionControlDto>()
             .ReverseMap(); // DTO → Entity para inserts/updates
+
+        // Mapeos de partidas(NUEVOS)
+        CreateMap<vPartidasCotizacionTransformadasETL, PartidaCotizacionOrigenDto>()
+            .ReverseMap();
+
+        CreateMap<PCotiza, PartidaCotizacionLegacyDto>()
+            .ReverseMap();
+
+        CreateMap<PartidaCotizacionOrigenDto, PartidaCotizacionLegacyDto>()
+            .ForMember(dest => dest.idPCotiza, opt => opt.Ignore())
+            .ForMember(dest => dest.Cant, opt => opt.MapFrom(src => (float?)src.Cant))
+            .ForMember(dest => dest.Precio, opt => opt.MapFrom(src => (float?)src.Precio))
+            .ForMember(dest => dest.PrecioI, opt => opt.MapFrom(src => (float?)src.PrecioI))
+            .ForMember(dest => dest.IVA, opt => opt.MapFrom(src => (float?)src.IVA))
+            .ForMember(dest => dest.Costo, opt => opt.MapFrom(src => (float?)src.Costo))
+            .ForMember(dest => dest.Folio, opt => opt.MapFrom(src => (short?)src.Folio))
+            .ForMember(dest => dest.IndicePrecio, opt => opt.MapFrom(src => (short?)src.IndicePrecio))
+            .ForMember(dest => dest.Recotizar, opt => opt.MapFrom(src => src.Recotizar ?? false))
+            .ForMember(dest => dest.TEntrega, opt => opt.MapFrom(src => src.TEngrega))
+            .ForMember(dest => dest.NotasCancelacion, opt => opt.Ignore())
+            .ForMember(dest => dest.NotasFExpress, opt => opt.Ignore())
+            .ForMember(dest => dest.FK05_idAutorizacion, opt => opt.Ignore())
+            .ForMember(dest => dest.FK04_Fabricante, opt => opt.Ignore());
     }
 }
