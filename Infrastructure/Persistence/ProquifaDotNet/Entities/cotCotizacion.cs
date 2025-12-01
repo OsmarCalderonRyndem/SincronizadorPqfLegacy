@@ -12,7 +12,6 @@ namespace Infrastructure.Persistence.ProquifaDotNet.Entities;
 [Index("IdDatosFacturacionCliente", "IdAjOfEstrategiaCotizacion", "IdArchivoPDF", "IdCliente", "IdContactoCliente", "IdCorreoRecibidoCliente", "IdCorreoRecibidoClienteReferencia", "IdDireccion", "IdEmpresa", "IdFlete", "IdPPPedidoIntramitable", "IdUsuarioTramita", Name = "IX_cotCotizacion")]
 [Index("IdCatCondicionesDePago", "IdCatCondicionesDePagoDeOrigen", "IdCatEstadoCotizacion", "IdCatMoneda", "IdCatTipoCotizacion", "IdcatEstadoCotizacionVD", "IdCatZona", Name = "IX_cotCotizacion_Catalogos")]
 [Index("IdCotCotizacionOriginal", Name = "IX_cotCotizacion_Original")]
-[Index("IdCotCotizacion", Name = "IX_cotCotizacion_Restriccion_ETL")]
 [Index("IdCotCotizacion", "Folio", "FolioPublicaciones", Name = "NonClusteredIndex-cotCotizacion")]
 public partial class cotCotizacion
 {
@@ -148,15 +147,6 @@ public partial class cotCotizacion
 
     [Column(TypeName = "decimal(18, 6)")]
     public decimal TipoCambioMonto { get; set; }
-
-    /// <summary>
-    /// Identificador de la región asociada al cliente de la cotización
-    /// </summary>
-    public Guid IdRegion { get; set; }
-
-    [StringLength(10)]
-    [Unicode(false)]
-    public string? Prefijo { get; set; }
 
     public string? CodigoDeFormatoServicios { get; set; }
 
