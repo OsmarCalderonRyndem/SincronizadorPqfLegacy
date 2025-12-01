@@ -1,19 +1,6 @@
 ﻿using SincronizadorPqfLegacy.API.ExceptionMiddleware;
-using SincronizadorPqfLegacy.Application.Factorys;
-using SincronizadorPqfLegacy.Application.Interfaces;
-using SincronizadorPqfLegacy.Application.Services;
-using SincronizadorPqfLegacy.Application.Validators;
-using SincronizadorPqfLegacy.Domain.Interfaces;
-using SincronizadorPqfLegacy.Infrastructure.Mappers;
-using SincronizadorPqfLegacy.Infrastructure.Persistence;
-using SincronizadorPqfLegacy.Infrastructure.Persistence.Context;
-using SincronizadorPqfLegacy.Infrastructure.Repository;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using SincronizadorPqfLegacy.API.Extensions;
 using Serilog;
-using System.Reflection;
 
 // Configuración inicial de Serilog (bootstrap logger)
 Log.Logger = new LoggerConfiguration()
@@ -26,77 +13,23 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    // Configuración completa de Serilog usando el host builder
-    builder.Host.UseSerilog((context, services, configuration) => configuration
-        .ReadFrom.Configuration(context.Configuration)
-        .ReadFrom.Services(services)
-        //.Enrich.WithThreadName()
-        .Enrich.WithThreadId()
-        .Enrich.FromLogContext());
+    // Configuración de Serilog
+    builder.Host.ConfigureSerilog();
 
     // Add services to the container.
     builder.Services.AddControllers();
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen(options =>
-    {
-        // Incluir comentarios XML
-        var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-        options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-    });
-
-    builder.Services.AddDbContext<MicroservicioContext>(options =>
-    {
-        var cs = builder.Configuration.GetConnectionString("DocumentBuilder");
-        if (string.IsNullOrWhiteSpace(cs)) { 
-            Log.Fatal("ConnectionStrings:DocumentBuilder is null/empty.");
-            throw new InvalidOperationException("ConnectionStrings:DocumentBuilder is null/empty.");
-        }
-
-        options.UseSqlServer(cs);
-    });
-
-    //Injections of dependencies
-    builder.Services.AddScoped<ITableDummyService, TableDummyService>();
-    builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
     
-    //Validators
-    builder.Services.AddScoped<TableDummyValidator>();
+    // Configuración de Swagger
+    builder.Services.ConfigureSwagger();
 
-    //Repositories
-    builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-    builder.Services.AddScoped<TableDummyRepository>();
+    // Configuración de Base de Datos
+    builder.Services.ConfigureDatabase(builder.Configuration);
 
-    //FluentValidation
-    builder.Services.AddFluentValidationAutoValidation(); // Para ASP.NET Core
-    builder.Services.AddValidatorsFromAssemblyContaining<TableDummyDtoFluetValidator>();
+    // Configuración de Servicios de Aplicación (Services, Repos, Validators, Mapper)
+    builder.Services.ConfigureApplicationServices();
 
-    //Autopper profiles
-    builder.Services.AddAutoMapper(cfg =>
-    {
-        cfg.AddProfile<ApplicationMappingProfile>();
-        cfg.AddProfile<DomainMappingProfile>();
-    });
-
-
-    // Customize 'ProblemDetails' for validation errors
-    builder.Services.Configure<ApiBehaviorOptions>(options =>
-    {
-        options.InvalidModelStateResponseFactory = context =>
-        {
-            var problem = ProblemDetailsHelper.CreateProblemDetails(
-                context.HttpContext,
-                StatusCodes.Status400BadRequest,
-                "One or more validation errors occurred.",
-                "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-                context.ModelState.ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
-                )
-            );
-
-            return new BadRequestObjectResult(problem);
-        };
-    });
+    // Configuración de ProblemDetails
+    builder.Services.ConfigureProblemDetails();
 
     var app = builder.Build();
 
