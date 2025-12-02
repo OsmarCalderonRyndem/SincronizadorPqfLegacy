@@ -8,7 +8,7 @@ namespace SincronizadorPqfLegacy.Application.Services
     {
         private readonly IGenericRepository<SyncJobLog> _repository = repository;
 
-        public async Task LogPermanentFailureAsync(string entityName, string recordIdentifier, Exception ex)
+        public async Task LogPermanentFailureAsync(string entityName, Guid recordIdentifier, Exception ex)
         {
             var log = new SyncJobLog
             {
@@ -23,7 +23,7 @@ namespace SincronizadorPqfLegacy.Application.Services
             await _repository.AddOrUpdate(log);
         }
 
-        public async Task LogSuccessAsync(string entityName, string recordIdentifier)
+        public async Task LogSuccessAsync(string entityName, Guid recordIdentifier)
         {
             var log = new SyncJobLog
             {

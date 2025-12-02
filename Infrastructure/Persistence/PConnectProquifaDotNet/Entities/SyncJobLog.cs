@@ -18,8 +18,7 @@ public partial class SyncJobLog
     [StringLength(100)]
     public string NombreEntidad { get; set; } = null!;
 
-    [StringLength(255)]
-    public string IdentificadorRegistro { get; set; } = null!;
+    public Guid IdentificadorRegistro { get; set; }
 
     [StringLength(50)]
     public string Estado { get; set; } = null!;

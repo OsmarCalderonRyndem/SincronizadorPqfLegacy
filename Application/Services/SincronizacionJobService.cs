@@ -81,7 +81,7 @@ namespace SincronizadorPqfLegacy.Application.Services
             progressBar?.SetValue(80);
             context?.WriteLine("Guardando resultados...");
 
-            await _syncLogService.LogSuccessAsync("Cotizacion", idCotizacion.ToString());
+            await _syncLogService.LogSuccessAsync("Cotizacion", idCotizacion);
 
             progressBar?.SetValue(100);
             context?.WriteLine("Sincronización de cotización completada exitosamente", ConsoleTextColor.Green);
@@ -105,7 +105,7 @@ namespace SincronizadorPqfLegacy.Application.Services
 
                 context?.WriteLine($"{errorMessage}", ConsoleTextColor.Red);
                 _logger.LogWarning(ex, "Error permanente en proceso {ProcessName} ID {RecordId}. No se reintentará.", processName, recordId);
-                await _syncLogService.LogPermanentFailureAsync(processName, recordId.ToString(), ex);
+                await _syncLogService.LogPermanentFailureAsync(processName, recordId, ex);
 
                 // Escribir en consola estándar también para compatibilidad
                 Console.WriteLine($"{errorMessage}");

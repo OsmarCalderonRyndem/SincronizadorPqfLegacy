@@ -75,10 +75,34 @@ public class CotizacionControlRepository : ICotizacionControlRepository
         {
             _logger.LogDebug("Buscando registros pendientes de sincronización");
 
+            // 1. Obtener lista de identificadores con fallo persistente
+            // Primero obtenemos todos los registros más recientes por identificador
+            var ultimosEstadosPorIdentificador = await _context.SyncJobLogs
+                .GroupBy(s => s.IdentificadorRegistro)
+                .Select(g => new
+                {
+                    IdentificadorRegistro = g.Key,
+                    UltimoEstado = g.OrderByDescending(x => x.FechaRegistro)
+                                    .Select(x => x.Estado)
+                                    .FirstOrDefault()
+                })
+                .ToListAsync();
+
+            // Filtrar en memoria los que tienen fallo persistente
+            var fallosPersistentes = ultimosEstadosPorIdentificador
+                .Where(x => x.UltimoEstado == "Fallo persistente")
+                .Select(x => x.IdentificadorRegistro)
+                .ToList();
+
+            // 2. Consulta principal, excluyendo esos identificadores
             var entidades = await _context.Cotizaciones
                 .AsNoTracking()
-                .Where(c => c.RegistroCompleto == false || c.CotizacionLegacy == null)
+                .Where(c =>
+                    (c.RegistroCompleto == false || c.CotizacionLegacy == null) &&
+                    !fallosPersistentes.Contains(c.CotizacionPQF ?? Guid.Empty)   // << discriminación
+                )
                 .ToListAsync();
+
 
             var dtos = _mapper.Map<IEnumerable<CotizacionControlDto>>(entidades);
 

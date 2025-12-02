@@ -64,7 +64,7 @@ public class SincronizacionMultipleService : ISincronizacionMultipleService
                     await _sincronizarCotizacionService.SincronizarCotizacion(idCotizacion);
                     
                     // Registrar éxito
-                    await _syncLogService.LogSuccessAsync("Cotizacion", idCotizacion.ToString());
+                    await _syncLogService.LogSuccessAsync("Cotizacion", idCotizacion);
                     
                     exitosos++;
                     _logger.LogInformation("✓ Cotización {Actual}/{Total} sincronizada exitosamente: {Id}", contador, pendientes.Count, idCotizacion);
@@ -156,7 +156,7 @@ public class SincronizacionMultipleService : ISincronizacionMultipleService
         {
             // Error permanente: Registrar en la tabla de logs
             _logger.LogWarning(ex, "Error permanente en cotización {Id}. Se registrará y continuará.", idCotizacion);
-            await _syncLogService.LogPermanentFailureAsync("Cotizacion", idCotizacion.ToString(), ex);
+            await _syncLogService.LogPermanentFailureAsync("Cotizacion", idCotizacion, ex);
         }
     }
 
@@ -254,7 +254,7 @@ public class SincronizacionMultipleService : ISincronizacionMultipleService
             // Llamar al servicio de sincronización individual
             //await _sincronizacionJobService.EjecutarSincronizacion(TipoProcesoEtl.Cotizacion, idCotizacion);
             await _sincronizarCotizacionService.SincronizarCotizacion(idCotizacion);
-            await _syncLogService.LogSuccessAsync("Cotizacion", idCotizacion.ToString());
+            await _syncLogService.LogSuccessAsync("Cotizacion", idCotizacion);
             _logger.LogDebug("Sincronización individual completada para: {Id}", idCotizacion);
         }
         catch (Exception ex)
