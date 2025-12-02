@@ -134,7 +134,7 @@ namespace SincronizadorPqfLegacy.API.Extensions
 
             // Repositories
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            services.AddScoped<IGenericRepository<SyncJobLog>, SyncJobLogRepository>();
+            services.AddScoped<ISyncJobLogRepository, SyncJobLogRepository>(); // Repositorio específico con DTOs
 
 
             // FluentValidation
@@ -145,7 +145,7 @@ namespace SincronizadorPqfLegacy.API.Extensions
             services.AddAutoMapper(cfg =>
             {
                 cfg.AddProfile<ApplicationMappingProfile>();
-
+                cfg.AddProfile<SyncJobLogMappingProfile>();
             });
         }
 

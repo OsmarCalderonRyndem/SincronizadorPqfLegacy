@@ -1,71 +1,203 @@
+using AutoMapper;
 using Infrastructure.Persistence.PConnectProquifaDotNet.Contexts;
-using SincronizadorPqfLegacy.Domain.Models;
+using Infrastructure.Persistence.PConnectProquifaDotNet.Entities;
 using Microsoft.EntityFrameworkCore;
-using SincronizadorPqfLegacy.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
+using SincronizadorPqfLegacy.Domain.DTOs;
+using SincronizadorPqfLegacy.Domain.Interfaces.Repositories;
 
-namespace SincronizadorPqfLegacy.Infrastructure.Repository
+namespace SincronizadorPqfLegacy.Infrastructure.Repository;
+
+/// <summary>
+/// Repositorio para logs de trabajos de sincronización
+/// Usa DTOs para todas las operaciones externas
+/// Base de datos: PConnectProquifaDotNet
+/// </summary>
+public class SyncJobLogRepository : ISyncJobLogRepository
 {
-    public class SyncJobLogRepository : IGenericRepository<SyncJobLog>
+    private readonly PConnectProquifaDotNetContext _context;
+    private readonly IMapper _mapper;
+    private readonly ILogger<SyncJobLogRepository> _logger;
+
+    public SyncJobLogRepository(
+        PConnectProquifaDotNetContext context,
+        IMapper mapper,
+        ILogger<SyncJobLogRepository> logger)
     {
-        private readonly PConnectProquifaDotNetContext _context;
-        private readonly DbSet<SyncJobLog> _set;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
 
-        public SyncJobLogRepository(PConnectProquifaDotNetContext context)
+    /// <summary>
+    /// Inserta un nuevo registro de log
+    /// </summary>
+    public async Task<SyncJobLogDto> InsertarAsync(SyncJobLogDto dto)
+    {
+        try
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-            _set = _context.Set<SyncJobLog>();
-        }
+            if (dto == null)
+                throw new ArgumentNullException(nameof(dto));
 
-        public async Task<Guid> AddOrUpdate(SyncJobLog entity)
-        {
-            if (entity is null) throw new ArgumentNullException(nameof(entity));
+            _logger.LogDebug("Insertando log: Entidad={Entidad}, ID={Id}, Estado={Estado}",
+                dto.NombreEntidad, dto.IdentificadorRegistro, dto.Estado);
 
-            if (entity.IdSyncJobLog == Guid.Empty)
-            {
-                entity.IdSyncJobLog = Guid.NewGuid();
-                await _set.AddAsync(entity);
-                await _context.SaveChangesAsync(); // Save immediately as per requirement for logs
-                return entity.IdSyncJobLog;
-            }
+            // Mapear DTO -> Entity
+            var entidad = _mapper.Map<SyncJobLog>(dto);
 
-            var existing = await _set.FindAsync(entity.IdSyncJobLog);
-            if (existing == null)
-            {
-                await _set.AddAsync(entity);
-            }
-            else
-            {
-                _context.Entry(existing).CurrentValues.SetValues(entity);
-            }
+            // Asegurar valores por defecto
+            if (entidad.IdSyncJobLog == Guid.Empty)
+                entidad.IdSyncJobLog = Guid.NewGuid();
 
+            if (!entidad.FechaRegistro.HasValue)
+                entidad.FechaRegistro = DateTime.Now;
+
+            if (entidad.FechaProcesamiento == default)
+                entidad.FechaProcesamiento = DateTime.Now;
+
+            // Insertar
+            await _context.SyncJobLogs.AddAsync(entidad);
             await _context.SaveChangesAsync();
-            return entity.IdSyncJobLog;
+
+            // Mapear Entity -> DTO
+            var dtoInsertado = _mapper.Map<SyncJobLogDto>(entidad);
+
+            _logger.LogInformation("Log insertado: IdLog={IdLog}, Entidad={Entidad}, Estado={Estado}",
+                dtoInsertado.IdSyncJobLog, dtoInsertado.NombreEntidad, dtoInsertado.Estado);
+
+            return dtoInsertado;
         }
-
-        public async Task<bool> Delete(Guid id)
+        catch (Exception ex)
         {
-            var existing = await _set.FindAsync(id);
-            if (existing == null) return false;
-
-            _set.Remove(existing);
-            await _context.SaveChangesAsync();
-            return true;
+            _logger.LogError(ex, "Error al insertar log: Entidad={Entidad}, ID={Id}",
+                dto?.NombreEntidad, dto?.IdentificadorRegistro);
+            throw;
         }
+    }
 
-        public async Task<bool> Exists(Guid id)
+    /// <summary>
+    /// Obtiene un log por ID
+    /// </summary>
+    public async Task<SyncJobLogDto?> ObtenerPorIdAsync(Guid idSyncJobLog)
+    {
+        try
         {
-            return await _set.AsNoTracking().AnyAsync(e => e.IdSyncJobLog == id);
+            _logger.LogDebug("Buscando log: {Id}", idSyncJobLog);
+
+            var entidad = await _context.SyncJobLogs
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.IdSyncJobLog == idSyncJobLog);
+
+            if (entidad == null)
+            {
+                _logger.LogDebug("Log no encontrado: {Id}", idSyncJobLog);
+                return null;
+            }
+
+            var dto = _mapper.Map<SyncJobLogDto>(entidad);
+            return dto;
         }
-
-        public async Task<SyncJobLog?> GetById(Guid id)
+        catch (Exception ex)
         {
-            return await _set.FindAsync(id);
+            _logger.LogError(ex, "Error al obtener log: {Id}", idSyncJobLog);
+            throw;
         }
+    }
 
-        public IQueryable<SyncJobLog> Query(bool asNoTracking = true)
+    /// <summary>
+    /// Obtiene todos los logs de un registro específico
+    /// </summary>
+    public async Task<IEnumerable<SyncJobLogDto>> ObtenerPorRegistroAsync(
+        string nombreEntidad,
+        Guid identificadorRegistro)
+    {
+        try
         {
-            var query = _set.AsQueryable();
-            return asNoTracking ? query.AsNoTracking() : query;
+            _logger.LogDebug("Buscando logs: Entidad={Entidad}, ID={Id}",
+                nombreEntidad, identificadorRegistro);
+
+            var entidades = await _context.SyncJobLogs
+                .AsNoTracking()
+                .Where(x => x.NombreEntidad == nombreEntidad
+                         && x.IdentificadorRegistro == identificadorRegistro)
+                .OrderByDescending(x => x.FechaRegistro)
+                .ToListAsync();
+
+            var dtos = _mapper.Map<IEnumerable<SyncJobLogDto>>(entidades);
+
+            _logger.LogDebug("Encontrados {Count} logs para Entidad={Entidad}, ID={Id}",
+                dtos.Count(), nombreEntidad, identificadorRegistro);
+
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener logs: Entidad={Entidad}, ID={Id}",
+                nombreEntidad, identificadorRegistro);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Elimina logs antiguos (para limpieza)
+    /// </summary>
+    public async Task<int> EliminarAntiguosAsync(int diasRetencion)
+    {
+        try
+        {
+            var fechaLimite = DateTime.Now.AddDays(-diasRetencion);
+
+            _logger.LogInformation("Eliminando logs anteriores a: {Fecha}", fechaLimite);
+
+            var logsAntiguos = await _context.SyncJobLogs
+                .Where(x => x.FechaRegistro < fechaLimite)
+                .ToListAsync();
+
+            var cantidad = logsAntiguos.Count;
+
+            if (cantidad > 0)
+            {
+                _context.SyncJobLogs.RemoveRange(logsAntiguos);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Eliminados {Cantidad} logs antiguos", cantidad);
+            }
+
+            return cantidad;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al eliminar logs antiguos");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Obtiene el último log de un registro específico
+    /// </summary>
+    public async Task<SyncJobLogDto?> ObtenerUltimoLogAsync(
+        string nombreEntidad,
+        Guid identificadorRegistro)
+    {
+        try
+        {
+            var entidad = await _context.SyncJobLogs
+                .AsNoTracking()
+                .Where(x => x.NombreEntidad == nombreEntidad
+                         && x.IdentificadorRegistro == identificadorRegistro)
+                .OrderByDescending(x => x.FechaRegistro)
+                .FirstOrDefaultAsync();
+
+            if (entidad == null)
+                return null;
+
+            return _mapper.Map<SyncJobLogDto>(entidad);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener último log: Entidad={Entidad}, ID={Id}",
+                nombreEntidad, identificadorRegistro);
+            throw;
         }
     }
 }

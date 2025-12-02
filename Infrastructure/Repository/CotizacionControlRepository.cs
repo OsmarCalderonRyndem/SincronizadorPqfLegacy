@@ -12,6 +12,7 @@ namespace SincronizadorPqfLegacy.Infrastructure.Repositories;
 /// Repositorio para la tabla de control de sincronización
 /// Maneja el registro y seguimiento del proceso de sincronización
 /// NOTA: La tabla tiene Primary Key (IdCotizacion)
+/// Base de datos: PConnectProquifaDotNet
 /// </summary>
 public class CotizacionControlRepository : ICotizacionControlRepository
 {
