@@ -17,12 +17,14 @@ namespace SincronizadorPqfLegacy.Application.Services
     public class SincronizacionJobService(
         ISincronizarCotizacion sincronizarCotizacion,
         ISincronizarPartidasService sincronizarPartidas,
+        ISincronizacionMultipleService sincronizacionMultipleService,
         IExceptionClassifier exceptionClassifier,
         ISyncLogService syncLogService,
         ILogger<SincronizacionJobService> logger)
     {
         private readonly ISincronizarCotizacion _sincronizarCotizacion = sincronizarCotizacion;
         private readonly ISincronizarPartidasService _sincronizarPartidas = sincronizarPartidas;
+        private readonly ISincronizacionMultipleService _sincronizacionMultipleService = sincronizacionMultipleService;
         private readonly IExceptionClassifier _exceptionClassifier = exceptionClassifier;
         private readonly ISyncLogService _syncLogService = syncLogService;
         private readonly ILogger<SincronizacionJobService> _logger = logger;
@@ -156,6 +158,113 @@ namespace SincronizadorPqfLegacy.Application.Services
 
                 // NO lanzar excepción: el job terminará como "Succeeded",
                 // pero el mensaje aparecerá en el log del dashboard
+            }
+        }
+
+        /// <summary>
+        /// Job recurrente para sincronizar todas las cotizaciones pendientes.
+        /// Este método se ejecuta automáticamente cada cierto intervalo configurado en Hangfire.
+        /// </summary>
+        /// <param name="context">Contexto de Hangfire para reportar progreso (opcional)</param>
+        public async Task EjecutarSincronizacionPendientesRecurrente(PerformContext? context = null)
+        {
+            try
+            {
+                context?.WriteLine("═══════════════════════════════════════════════════════");
+                context?.WriteLine("  SINCRONIZACIÓN AUTOMÁTICA DE PENDIENTES", ConsoleTextColor.Cyan);
+                context?.WriteLine("═══════════════════════════════════════════════════════");
+                context?.WriteLine($"Hora de ejecución: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
+                _logger.LogInformation("Iniciando sincronización automática de pendientes");
+
+                var progressBar = context?.WriteProgressBar();
+                progressBar?.SetValue(0);
+
+                // Ejecutar la sincronización
+                var resultado = await _sincronizacionMultipleService.SincronizarPendientesAsync();
+
+                // Reportar resultados
+                progressBar?.SetValue(100);
+
+                context?.WriteLine("");
+                context?.WriteLine("───────────────────────────────────────────────────────");
+                context?.WriteLine("  RESULTADOS", ConsoleTextColor.White);
+                context?.WriteLine("───────────────────────────────────────────────────────");
+                context?.WriteLine($"Total pendientes: {resultado.TotalPendientes}");
+
+                if (resultado.Exitosos > 0)
+                {
+                    context?.WriteLine($"✓ Exitosos: {resultado.Exitosos}", ConsoleTextColor.Green);
+                }
+
+                if (resultado.Fallidos > 0)
+                {
+                    context?.WriteLine($"✗ Fallidos: {resultado.Fallidos}", ConsoleTextColor.Yellow);
+                    if (resultado.FoliosFallidos.Any())
+                    {
+                        context?.WriteLine($"  Folios fallidos: {string.Join(", ", resultado.FoliosFallidos)}");
+                    }
+                }
+
+                context?.WriteLine($"Tiempo total: {resultado.TiempoTotal}");
+                context?.WriteLine("═══════════════════════════════════════════════════════");
+
+                _logger.LogInformation(
+                    "Sincronización automática completada: Total={Total}, Exitosos={Exitosos}, Fallidos={Fallidos}",
+                    resultado.TotalPendientes, resultado.Exitosos, resultado.Fallidos);
+            }
+            catch (Exception ex)
+            {
+                context?.WriteLine($"ERROR CRÍTICO: {ex.Message}", ConsoleTextColor.Red);
+                _logger.LogError(ex, "Error crítico en sincronización automática de pendientes");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Job para procesar registros sin detonación inicial a ETL.
+        /// Estos son procesos que no pudieron comunicarse con el API de ETL en su momento.
+        /// </summary>
+        /// <param name="context">Contexto de Hangfire para reportar progreso (opcional)</param>
+        /// <remarks>
+        /// TODO: Implementar la lógica específica según reglas de negocio.
+        /// Por ahora es un placeholder para definir las reglas posteriormente.
+        /// </remarks>
+        public async Task EjecutarProcesosSinDetonacionInicial(PerformContext? context = null)
+        {
+            try
+            {
+                context?.WriteLine("═══════════════════════════════════════════════════════");
+                context?.WriteLine("  PROCESOS SIN DETONACIÓN INICIAL", ConsoleTextColor.Cyan);
+                context?.WriteLine("═══════════════════════════════════════════════════════");
+                context?.WriteLine($"Hora de ejecución: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                context?.WriteLine("");
+                context?.WriteLine("⚠️  PLACEHOLDER - Pendiente de implementación", ConsoleTextColor.Yellow);
+                context?.WriteLine("");
+                context?.WriteLine("Este job está reservado para procesar registros que:");
+                context?.WriteLine("• No pudieron comunicarse con el API de ETL inicialmente");
+                context?.WriteLine("• Requieren lógica especial de recuperación");
+                context?.WriteLine("• Deben ser procesados según reglas de negocio específicas");
+                context?.WriteLine("");
+                context?.WriteLine("Las reglas de negocio se definirán posteriormente.");
+                context?.WriteLine("═══════════════════════════════════════════════════════");
+
+                _logger.LogInformation("Job de procesos sin detonación inicial ejecutado (placeholder)");
+
+                // TODO: Implementar la lógica cuando se definan las reglas
+                // Posibles pasos:
+                // 1. Consultar tabla de control buscando registros con flag específico
+                // 2. Aplicar reglas de negocio para determinar cuáles procesar
+                // 3. Intentar sincronización
+                // 4. Actualizar estado según resultado
+
+                await Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                context?.WriteLine($"ERROR: {ex.Message}", ConsoleTextColor.Red);
+                _logger.LogError(ex, "Error en job de procesos sin detonación inicial");
+                throw;
             }
         }
     }

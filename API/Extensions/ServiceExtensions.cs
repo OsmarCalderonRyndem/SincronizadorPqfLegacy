@@ -262,12 +262,16 @@ namespace SincronizadorPqfLegacy.API.Extensions
             var cleanupOptions = configuration.GetSection(SyncLogCleanupOptions.SectionName)
                 .Get<SyncLogCleanupOptions>() ?? new SyncLogCleanupOptions();
 
+            // Leer configuración de sincronización automática
+            var syncPendientesCron = configuration.GetValue<string>("SincronizacionAutomatica:CronExpression", "*/30 * * * *"); // Cada 30 minutos por defecto
+            var sinDetonacionCron = configuration.GetValue<string>("SincronizacionAutomatica:SinDetonacionCron", "0 2 * * *"); // 2 AM diario por defecto
+
             // Obtener el gestor de jobs recurrentes del contenedor de servicios
             using (var scope = app.ApplicationServices.CreateScope())
             {
                 var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
 
-                // Registrar job recurrente para limpieza de logs
+                // 1. Job recurrente para limpieza de logs
                 recurringJobManager.AddOrUpdate<SyncLogCleanupService>(
                     "cleanup-sync-logs",
                     service => service.LimpiarLogsAntiguos(),
@@ -275,6 +279,26 @@ namespace SincronizadorPqfLegacy.API.Extensions
                     new RecurringJobOptions
                     {
                         TimeZone = TimeZoneInfo.Utc
+                    });
+
+                // 2. Job recurrente para sincronización automática de pendientes
+                recurringJobManager.AddOrUpdate<SincronizacionJobService>(
+                    "sincronizar-pendientes-automatico",
+                    service => service.EjecutarSincronizacionPendientesRecurrente(null),
+                    syncPendientesCron,
+                    new RecurringJobOptions
+                    {
+                        TimeZone = TimeZoneInfo.Local
+                    });
+
+                // 3. Job recurrente para procesos sin detonación inicial (placeholder)
+                recurringJobManager.AddOrUpdate<SincronizacionJobService>(
+                    "procesos-sin-detonacion-inicial",
+                    service => service.EjecutarProcesosSinDetonacionInicial(null),
+                    sinDetonacionCron,
+                    new RecurringJobOptions
+                    {
+                        TimeZone = TimeZoneInfo.Local
                     });
             }
         }
