@@ -225,7 +225,7 @@ namespace SincronizadorPqfLegacy.API.Extensions
             // Leer configuración de reintentos
             var retryAttempts = configuration.GetValue<int>("Hangfire:RetryAttempts", 5);
             var retryDelays = configuration.GetSection("Hangfire:RetryDelays").Get<int[]>()
-                ?? new[] { 60, 300, 900, 3600, 7200 }; // Valores por defecto en segundos
+                ?? [60, 300, 900, 3600, 7200]; // Valores por defecto en segundos
 
             services.AddHangfire(config => config
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -264,7 +264,7 @@ namespace SincronizadorPqfLegacy.API.Extensions
 
             // Leer configuración de sincronización automática
             var syncPendientesCron = configuration.GetValue<string>("SincronizacionAutomatica:CronExpression", "*/30 * * * *"); // Cada 30 minutos por defecto
-            var sinDetonacionCron = configuration.GetValue<string>("SincronizacionAutomatica:SinDetonacionCron", "0 2 * * *"); // 2 AM diario por defecto
+            var sinDetonacionCron = configuration.GetValue<string>("SincronizacionAutomatica:SinDetonacionCron", "*/30 * * *"); // Cada 30 minutos por defecto
 
             // Obtener el gestor de jobs recurrentes del contenedor de servicios
             using (var scope = app.ApplicationServices.CreateScope())
@@ -272,14 +272,21 @@ namespace SincronizadorPqfLegacy.API.Extensions
                 var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
 
                 // 1. Job recurrente para limpieza de logs
-                recurringJobManager.AddOrUpdate<SyncLogCleanupService>(
-                    "cleanup-sync-logs",
-                    service => service.LimpiarLogsAntiguos(),
-                    cleanupOptions.CronExpression,
-                    new RecurringJobOptions
-                    {
-                        TimeZone = TimeZoneInfo.Utc
-                    });
+                if (cleanupOptions.Habilitado)
+                {
+                    recurringJobManager.AddOrUpdate<SyncLogCleanupService>(
+                        "cleanup-sync-logs",
+                        service => service.LimpiarLogsAntiguos(),
+                        cleanupOptions.CronExpression,
+                        new RecurringJobOptions
+                        {
+                            TimeZone = TimeZoneInfo.Utc
+                        });
+                }
+                else
+                {
+                    recurringJobManager.RemoveIfExists("cleanup-sync-logs");
+                }
 
                 // 2. Job recurrente para sincronización automática de pendientes
                 recurringJobManager.AddOrUpdate<SincronizacionJobService>(

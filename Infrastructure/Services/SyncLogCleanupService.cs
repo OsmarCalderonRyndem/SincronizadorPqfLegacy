@@ -72,6 +72,11 @@ namespace SincronizadorPqfLegacy.Infrastructure.Services
         public int DiasRetencion { get; set; } = 30;
 
         /// <summary>
+        /// Indica si el proceso de limpieza de logs está habilitado. Por defecto: false.
+        /// </summary>
+        public bool Habilitado { get; set; } = false;
+
+        /// <summary>
         /// Expresión Cron para la frecuencia de ejecución. Por defecto: diario a las 2 AM.
         /// </summary>
         public string CronExpression { get; set; } = "0 2 * * *"; // Diario a las 2 AM

@@ -6,13 +6,13 @@ namespace SincronizadorPqfLegacy.Domain.Enums
     public enum TipoProcesoEtl
     {
         /// <summary>
-        /// Sincronización de cotizaciones desde el sistema origen al sistema legacy.
+        /// Sincronización de cotizaciones desde el sistema origen al sistema PQDF 2.
         /// </summary>
         Cotizacion = 1,
 
         /// <summary>
-        /// Sincronización de partidas de cotización desde el sistema origen al sistema legacy.
+        /// Sincronización de pedidos confirmados desde el sistema origen al sistema PQDF 2.
         /// </summary>
-        Partida = 2
+        Pedido = 2
     }
 }

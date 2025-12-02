@@ -31,6 +31,11 @@ public class SincronizacionMultipleService : ISincronizacionMultipleService
         _logger = logger;
     }
 
+    public Task<List<Guid>> SincronizarCotizacionesPendientes()
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<ResultadoSincronizacionMultipleDto> SincronizarPendientesAsync()
     {
         // Inicializar resultado

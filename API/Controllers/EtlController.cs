@@ -68,8 +68,7 @@ namespace SincronizadorPqfLegacy.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Sincronizar(
             [FromQuery] TipoProcesoEtl tipoProceso,
-            [FromQuery] Guid recordId,
-            [FromQuery] string? parametrosAdicionales = null)
+            [FromQuery] Guid recordId)
         {
             if (recordId == Guid.Empty)
             {
@@ -78,11 +77,11 @@ namespace SincronizadorPqfLegacy.API.Controllers
 
             // Encolar el job en Hangfire (el PerformContext es inyectado automáticamente por Hangfire)
             var jobId = _backgroundJobClient.Enqueue<SincronizacionJobService>(
-                service => service.EjecutarSincronizacion(tipoProceso, recordId, parametrosAdicionales, null));
+                service => service.EjecutarSincronizacion(tipoProceso, recordId, null));
 
             _logger.LogInformation(
-                "Job ETL encolado: Tipo={TipoProceso}, RecordId={RecordId}, JobId={JobId}, Parametros={Parametros}",
-                tipoProceso, recordId, jobId, parametrosAdicionales ?? "ninguno");
+                "Job ETL encolado: Tipo={TipoProceso}, RecordId={RecordId}, JobId={JobId}",
+                tipoProceso, recordId, jobId);
 
             return Accepted(new
             {
@@ -90,7 +89,6 @@ namespace SincronizadorPqfLegacy.API.Controllers
                 jobId,
                 tipoProceso = tipoProceso.ToString(),
                 recordId,
-                parametrosAdicionales,
                 dashboardUrl = $"/hangfire/jobs/details/{jobId}"
             });
         }

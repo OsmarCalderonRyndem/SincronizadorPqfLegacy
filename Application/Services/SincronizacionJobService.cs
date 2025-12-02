@@ -36,7 +36,7 @@ namespace SincronizadorPqfLegacy.Application.Services
         /// <param name="recordId">ID del registro principal a sincronizar</param>
         /// <param name="parametrosAdicionales">Parámetros adicionales en formato JSON (opcional, para casos como partidas que necesitan pkFolio)</param>
         /// <param name="context">Contexto de Hangfire para reportar progreso (opcional)</param>
-        public async Task EjecutarSincronizacion(TipoProcesoEtl tipoProceso, Guid recordId, string? parametrosAdicionales = null, PerformContext? context = null)
+        public async Task EjecutarSincronizacion(TipoProcesoEtl tipoProceso, Guid recordId, PerformContext? context = null)
         {
             var nombreProceso = tipoProceso.ToString();
 
@@ -57,11 +57,6 @@ namespace SincronizadorPqfLegacy.Application.Services
                     case TipoProcesoEtl.Cotizacion:
                         await EjecutarSincronizacionCotizacionInterno(recordId, context, progressBar);
                         break;
-
-                    case TipoProcesoEtl.Partida:
-                        await EjecutarSincronizacionPartidaInterno(recordId, parametrosAdicionales, context, progressBar);
-                        break;
-
                     default:
                         throw new ArgumentException($"Proceso ETL no soportado: {tipoProceso}");
                 }
@@ -92,45 +87,6 @@ namespace SincronizadorPqfLegacy.Application.Services
 
             progressBar?.SetValue(100);
             context?.WriteLine("Sincronización de cotización completada exitosamente", ConsoleTextColor.Green);
-        }
-
-        private async Task EjecutarSincronizacionPartidaInterno(Guid idCotizacion, string? parametrosAdicionales, PerformContext? context, IProgressBar? progressBar)
-        {
-            context?.WriteLine("Preparando datos de partidas...");
-
-            // Extraer pkFolio de los parámetros adicionales (puede ser JSON)
-            int pkFolio = 0;
-            if (!string.IsNullOrEmpty(parametrosAdicionales))
-            {
-                try
-                {
-                    var parametros = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(parametrosAdicionales);
-                    if (parametros != null && parametros.ContainsKey("pkFolio"))
-                    {
-                        pkFolio = Convert.ToInt32(parametros["pkFolio"]);
-                    }
-                }
-                catch
-                {
-                    // Si falla el parseo JSON, intentar como entero directo
-                    int.TryParse(parametrosAdicionales, out pkFolio);
-                }
-            }
-
-            // Fase 2: Ejecución de sincronización
-            progressBar?.SetValue(40);
-            context?.WriteLine($"Ejecutando sincronización de partidas (pkFolio: {pkFolio})...");
-
-            await _sincronizarPartidas.SincronizarPartidasAsync(idCotizacion, pkFolio);
-
-            // Fase 3: Finalización
-            progressBar?.SetValue(80);
-            context?.WriteLine("Guardando resultados...");
-
-            await _syncLogService.LogSuccessAsync("Partida", $"{idCotizacion}|{pkFolio}");
-
-            progressBar?.SetValue(100);
-            context?.WriteLine("Sincronización de partidas completada exitosamente", ConsoleTextColor.Green);
         }
 
         private async Task ManejarError(Exception ex, string processName, Guid recordId, PerformContext? context)

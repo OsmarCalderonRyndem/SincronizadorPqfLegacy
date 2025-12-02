@@ -180,6 +180,43 @@ function Run-Scaffold {
 # 5. Menú Interactivo
 # ========================================================
 
+function Get-ExistingTableNames {
+    param (
+        $dbConfig
+    )
+
+    $infraRoot = Split-Path $INFRA_PROJ -Parent
+    $entitiesPath = Join-Path $infraRoot $dbConfig.EntitiesDir
+    $contextPath = Join-Path $infraRoot "$($dbConfig.ContextDir)\$($dbConfig.ContextName).cs"
+
+    if (-not (Test-Path $entitiesPath)) { return @() }
+    
+    $contextContent = Get-Content $contextPath -Raw
+    $tables = @()
+
+    $files = Get-ChildItem $entitiesPath -Filter "*.cs"
+    foreach ($file in $files) {
+        $content = Get-Content $file.FullName -Raw
+        
+        # 1. Try to find [Table("Name")]
+        if ($content -match '\[Table\("([^"]+)"') {
+            $tables += $matches[1]
+        }
+        else {
+            # 2. Find class name and look up in Context
+            if ($content -match 'public partial class (\w+)') {
+                $className = $matches[1]
+                # Look for DbSet<ClassName> PropertyName
+                if ($contextContent -match "DbSet<$className>\s+(\w+)") {
+                    $tables += $matches[1]
+                }
+            }
+        }
+    }
+
+    return $tables | Select-Object -Unique
+}
+
 while ($true) {
     Write-Host "`nSeleccione la base de datos para Scaffold:" -ForegroundColor Cyan
     $i = 1
@@ -207,13 +244,36 @@ while ($true) {
 
     $selectedDb = $databases[$index]
 
+    Write-Host "`nModo de operación:" -ForegroundColor Cyan
+    Write-Host "1. Scaffold Completo (Todas las tablas de la BD)"
+    Write-Host "2. Seleccionar tablas específicas (Sobrescribe Contexto)"
+    Write-Host "3. Agregar tablas (Mantiene existentes + Nuevas)"
+    
+    $mode = Read-Host "Seleccione opción [Default: 1]"
+    
     $tablesToScaffold = $null
-    $filterTables = Read-Host "¿Desea seleccionar tablas específicas? (s/n) [Default: n]"
-    if ($filterTables.ToLower() -eq "s") {
-        $inputTables = Read-Host "Ingrese los nombres de las tablas separados por coma (ej: Users, dbo.Orders)"
+
+    if ($mode -eq "2") {
+        $inputTables = Read-Host "Ingrese las tablas (separadas por coma)"
         $tablesToScaffold = ($inputTables -split ",") | ForEach-Object { $_.Trim() } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
-        if ($tablesToScaffold.Count -eq 0) {
-            Write-Host "No se ingresaron tablas. Se cancela la operación." -ForegroundColor Yellow
+    }
+    elseif ($mode -eq "3") {
+        Write-Host "Detectando tablas existentes..." -ForegroundColor Yellow
+        $existing = Get-ExistingTableNames -dbConfig $selectedDb
+        
+        if ($existing.Count -gt 0) {
+            Write-Host "Existentes: $($existing -join ', ')" -ForegroundColor Gray
+        }
+
+        $inputTables = Read-Host "Ingrese NUEVAS tablas (separadas por coma)"
+        $newTables = ($inputTables -split ",") | ForEach-Object { $_.Trim() } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+
+        if ($newTables.Count -gt 0) {
+            $tablesToScaffold = $existing + $newTables
+            $tablesToScaffold = $tablesToScaffold | Select-Object -Unique
+        }
+        else {
+            Write-Host "No se ingresaron tablas nuevas." -ForegroundColor Red
             continue
         }
     }

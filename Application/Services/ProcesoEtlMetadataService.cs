@@ -21,18 +21,6 @@ namespace SincronizadorPqfLegacy.Application.Services
                     EjemploParametros = null,
                     EjemploLlamada = "POST /api/etl/sincronizar?tipoProceso=Cotizacion&recordId={guid-cotizacion}"
                 }
-            },
-            {
-                TipoProcesoEtl.Partida,
-                new ProcesoEtlMetadata
-                {
-                    Clave = (int)TipoProcesoEtl.Partida,
-                    Nombre = "Partida",
-                    Descripcion = "Sincroniza las partidas de una cotización desde el sistema origen al sistema legacy",
-                    RequiereParametrosAdicionales = true,
-                    EjemploParametros = "{\"pkFolio\": 123}",
-                    EjemploLlamada = "POST /api/etl/sincronizar?tipoProceso=Partida&recordId={guid-cotizacion}&parametrosAdicionales={\"pkFolio\":123}"
-                }
             }
         };
 

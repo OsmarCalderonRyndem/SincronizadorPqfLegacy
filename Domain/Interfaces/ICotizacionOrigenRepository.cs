@@ -13,5 +13,6 @@ public interface ICotizacionOrigenRepository
     /// <param name="idCotizacion">ID de la cotización</param>
     /// <returns>Cotización DTO o null si no existe</returns>
     Task<CotizacionOrigenDto?> ObtenerPorIdAsync(Guid idCotizacion);
+    Task<List<Guid>> SincronizarCotizacionesPQF2Pendientes();
 
 }

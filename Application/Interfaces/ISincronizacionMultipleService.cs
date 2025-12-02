@@ -12,4 +12,6 @@ public interface ISincronizacionMultipleService
     /// </summary>
     /// <returns>Resultado con contadores de éxito/error</returns>
     Task<ResultadoSincronizacionMultipleDto> SincronizarPendientesAsync();
+
+    Task<List<Guid>> SincronizarCotizacionesPendientes();
 }
