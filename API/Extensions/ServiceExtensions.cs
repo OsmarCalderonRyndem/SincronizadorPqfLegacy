@@ -127,7 +127,7 @@ namespace SincronizadorPqfLegacy.API.Extensions
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Hangfire Job Services
-            services.AddScoped<SincronizacionJobService>();
+            services.AddScoped<ISincronizacionJobService, SincronizacionJobService>();
 
             // ETL Metadata Service
             services.AddSingleton<ProcesoEtlMetadataService>();
@@ -171,6 +171,7 @@ namespace SincronizadorPqfLegacy.API.Extensions
             services.AddScoped<ICotizacionControlRepository, CotizacionControlRepository>();
             services.AddScoped<IPartidaCotizacionOrigenRepository, PartidaCotizacionOrigenRepository>();
             services.AddScoped<IPartidaCotizacionLegacyRepository, PartidaCotizacionLegacyRepository>();
+            services.AddScoped<ISincronizacionJobService, SincronizacionJobService>();
 
             // AutoMapper profiles adicionales
             services.AddAutoMapper(cfg =>

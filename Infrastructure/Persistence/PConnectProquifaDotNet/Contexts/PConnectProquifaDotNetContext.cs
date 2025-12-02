@@ -18,6 +18,8 @@ public partial class PConnectProquifaDotNetContext : DbContext
 
     public virtual DbSet<catEstadoTransferencium> catEstadoTransferencia { get; set; }
 
+    public virtual DbSet<vETLCotizacionesPendiete> vETLCotizacionesPendietes { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -40,6 +42,11 @@ public partial class PConnectProquifaDotNetContext : DbContext
             entity.Property(e => e.IdCatEstadoTransferencia).HasDefaultValueSql("(newid())");
             entity.Property(e => e.Activo).HasDefaultValue(true);
             entity.Property(e => e.FechaRegistro).HasDefaultValueSql("(getdate())");
+        });
+
+        modelBuilder.Entity<vETLCotizacionesPendiete>(entity =>
+        {
+            entity.ToView("vETLCotizacionesPendietes");
         });
 
         OnModelCreatingPartial(modelBuilder);

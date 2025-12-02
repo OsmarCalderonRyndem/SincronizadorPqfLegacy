@@ -16,14 +16,12 @@ namespace SincronizadorPqfLegacy.Application.Services
     /// </summary>
     public class SincronizacionJobService(
         ISincronizarCotizacion sincronizarCotizacion,
-        ISincronizarPartidasService sincronizarPartidas,
         ISincronizacionMultipleService sincronizacionMultipleService,
         IExceptionClassifier exceptionClassifier,
         ISyncLogService syncLogService,
-        ILogger<SincronizacionJobService> logger)
+        ILogger<SincronizacionJobService> logger) : ISincronizacionJobService
     {
         private readonly ISincronizarCotizacion _sincronizarCotizacion = sincronizarCotizacion;
-        private readonly ISincronizarPartidasService _sincronizarPartidas = sincronizarPartidas;
         private readonly ISincronizacionMultipleService _sincronizacionMultipleService = sincronizacionMultipleService;
         private readonly IExceptionClassifier _exceptionClassifier = exceptionClassifier;
         private readonly ISyncLogService _syncLogService = syncLogService;
@@ -207,14 +205,20 @@ namespace SincronizadorPqfLegacy.Application.Services
 
                 _logger.LogInformation("Job de procesos sin detonación inicial ejecutado (placeholder)");
 
-                // TODO: Implementar la lógica cuando se definan las reglas
-                // Posibles pasos:
-                // 1. Consultar tabla de control buscando registros con flag específico
-                // 2. Aplicar reglas de negocio para determinar cuáles procesar
-                // 3. Intentar sincronización
-                // 4. Actualizar estado según resultado
 
-                await Task.CompletedTask;
+                var progressBar = context?.WriteProgressBar();
+                progressBar?.SetValue(0);
+
+                // Ejecutar la sincronización
+                var resultado = await _sincronizacionMultipleService.SincronizarCotizacionesPendientes();
+
+                // Reportar resultados
+                progressBar?.SetValue(100);
+
+                context?.WriteLine($"Total de cotizaciones sincronizadas: {resultado.Count}");
+                _logger.LogInformation("Procesos sin detonación inicial completados. Total sincronizadas: {Count}", resultado.Count);
+
+                
             }
             catch (Exception ex)
             {

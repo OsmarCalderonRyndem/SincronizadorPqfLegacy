@@ -2,7 +2,10 @@
 using SincronizadorPqfLegacy.Application.DTOs;
 using SincronizadorPqfLegacy.Application.Interfaces;
 using SincronizadorPqfLegacy.Domain.DTOs;
+using SincronizadorPqfLegacy.Domain.Enums;
+using SincronizadorPqfLegacy.Domain.Interfaces;
 using SincronizadorPqfLegacy.Domain.Interfaces.Repositories;
+using SincronizadorPqfLegacy.Domain.Models;
 
 namespace SincronizadorPqfLegacy.Application.Services;
 
@@ -15,6 +18,8 @@ public class SincronizacionMultipleService : ISincronizacionMultipleService
     private readonly ICotizacionLegacyRepository _legacyRepo;
     private readonly ICotizacionControlRepository _controlRepo;
     private readonly ISincronizarCotizacion _sincronizarCotizacionService;
+    private readonly IExceptionClassifier _exceptionClassifier;
+    private readonly ISyncLogService _syncLogService;
     private readonly ILogger<SincronizacionMultipleService> _logger;
 
     public SincronizacionMultipleService(
@@ -22,18 +27,66 @@ public class SincronizacionMultipleService : ISincronizacionMultipleService
         ICotizacionLegacyRepository legacyRepo,
         ICotizacionControlRepository controlRepo,
         ISincronizarCotizacion sincronizarCotizacionService,
+        IExceptionClassifier exceptionClassifier,
+        ISyncLogService syncLogService,
         ILogger<SincronizacionMultipleService> logger)
     {
         _origenRepo = origenRepo;
         _legacyRepo = legacyRepo;
         _controlRepo = controlRepo;
         _sincronizarCotizacionService = sincronizarCotizacionService;
+        _exceptionClassifier = exceptionClassifier;
+        _syncLogService = syncLogService;
         _logger = logger;
     }
 
-    public Task<List<Guid>> SincronizarCotizacionesPendientes()
+    public async Task<List<Guid>> SincronizarCotizacionesPendientes()
     {
-        throw new NotImplementedException();
+        try
+        {
+            _logger.LogInformation("Iniciando sincronización de cotizaciones pendientes...");
+            var pendientes = await _origenRepo.SincronizarCotizacionesPQF2Pendientes();
+            
+            _logger.LogInformation("Se encontraron {Count} cotizaciones pendientes. Iniciando procesamiento...", pendientes.Count);
+
+            int contador = 0;
+            int exitosos = 0;
+            int fallidos = 0;
+
+            foreach (var idCotizacion in pendientes)
+            {
+                contador++;
+                try
+                {
+                    _logger.LogInformation("Procesando cotización {Actual}/{Total}: {Id}", contador, pendientes.Count, idCotizacion);
+                    
+                    // Ejecutar sincronización individual
+                    await _sincronizarCotizacionService.SincronizarCotizacion(idCotizacion);
+                    
+                    // Registrar éxito
+                    await _syncLogService.LogSuccessAsync("Cotizacion", idCotizacion.ToString());
+                    
+                    exitosos++;
+                    _logger.LogInformation("✓ Cotización {Actual}/{Total} sincronizada exitosamente: {Id}", contador, pendientes.Count, idCotizacion);
+                }
+                catch (Exception ex)
+                {
+                    // Manejar error según clasificación
+                    await ManejarErrorIndividual(ex, idCotizacion);
+                    fallidos++;
+                }
+            }
+
+            _logger.LogInformation("Sincronización completada. Total: {Total} | Exitosos: {Exitosos} | Fallidos: {Fallidos}",
+                pendientes.Count, exitosos, fallidos);
+
+            return pendientes;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error crítico al sincronizar cotizaciones pendientes");
+            throw;
+        }
     }
 
     public async Task<ResultadoSincronizacionMultipleDto> SincronizarPendientesAsync()
@@ -82,6 +135,28 @@ public class SincronizacionMultipleService : ISincronizacionMultipleService
             _logger.LogError(ex, "Error crítico en sincronización masiva");
             resultado.FechaFin = DateTime.Now;
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Maneja errores individuales según clasificación (transient vs permanent).
+    /// Similar a ManejarError en SincronizacionJobService pero para procesamiento batch.
+    /// </summary>
+    private async Task ManejarErrorIndividual(Exception ex, Guid idCotizacion)
+    {
+        var category = _exceptionClassifier.Classify(ex);
+
+        if (category == ErrorCategory.Transient)
+        {
+            // Error transitorio: Loguear como warning pero continuar con el siguiente
+            _logger.LogWarning(ex, "Error transitorio en cotización {Id}. Se continuará con el siguiente registro.", idCotizacion);
+            // En procesamiento batch, NO relanzamos para continuar con los demás
+        }
+        else // Permanent
+        {
+            // Error permanente: Registrar en la tabla de logs
+            _logger.LogWarning(ex, "Error permanente en cotización {Id}. Se registrará y continuará.", idCotizacion);
+            await _syncLogService.LogPermanentFailureAsync("Cotizacion", idCotizacion.ToString(), ex);
         }
     }
 
@@ -156,8 +231,8 @@ public class SincronizacionMultipleService : ISincronizacionMultipleService
                     pendientes.Count(),
                     cotizacionControl.Folio);
 
-                // IMPORTANTE: Continuar con el siguiente registro
-                // NO lanzar la excepción (no abortar todo el proceso)
+                // Manejar error según clasificación
+                await ManejarErrorIndividual(ex, cotizacionControl.CotizacionPQF);
             }
         }
 
@@ -177,8 +252,9 @@ public class SincronizacionMultipleService : ISincronizacionMultipleService
             _logger.LogDebug("Iniciando sincronización individual para: {Id}", idCotizacion);
 
             // Llamar al servicio de sincronización individual
+            //await _sincronizacionJobService.EjecutarSincronizacion(TipoProcesoEtl.Cotizacion, idCotizacion);
             await _sincronizarCotizacionService.SincronizarCotizacion(idCotizacion);
-
+            await _syncLogService.LogSuccessAsync("Cotizacion", idCotizacion.ToString());
             _logger.LogDebug("Sincronización individual completada para: {Id}", idCotizacion);
         }
         catch (Exception ex)

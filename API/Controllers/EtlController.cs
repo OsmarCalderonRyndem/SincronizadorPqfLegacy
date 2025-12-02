@@ -46,7 +46,6 @@ namespace SincronizadorPqfLegacy.API.Controllers
         /// </summary>
         /// <param name="tipoProceso">Tipo de proceso ETL (Cotizacion, Partida, etc.)</param>
         /// <param name="recordId">Identificador único del registro principal a sincronizar</param>
-        /// <param name="parametrosAdicionales">Parámetros adicionales en formato JSON (opcional, por ejemplo: {"pkFolio": 123})</param>
         /// <returns>ID del trabajo encolado en Hangfire</returns>
         /// <response code="202">Trabajo encolado exitosamente</response>
         /// <response code="400">Si el recordId es inválido</response>
