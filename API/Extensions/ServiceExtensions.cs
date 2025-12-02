@@ -1,6 +1,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hangfire;
+using Hangfire.Console;
 using Infrastructure.Persistence.PConnect.Contexts;
 using Infrastructure.Persistence.PConnectProquifaDotNet.Contexts;
 using Infrastructure.Persistence.PConnectProquifaDotNet.Entities;
@@ -128,6 +129,9 @@ namespace SincronizadorPqfLegacy.API.Extensions
             // Hangfire Job Services
             services.AddScoped<SincronizacionJobService>();
 
+            // ETL Metadata Service
+            services.AddSingleton<ProcesoEtlMetadataService>();
+
             // Validators
             services.AddScoped<TableDummyValidator>();
 
@@ -228,6 +232,7 @@ namespace SincronizadorPqfLegacy.API.Extensions
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
                 .UseSqlServerStorage(configuration.GetConnectionString("PConnectProquifaDotNet"))
+                .UseConsole() // Habilita Hangfire.Console para barras de progreso y logs con colores
                 .UseFilter(new AutomaticRetryAttribute
                 {
                     Attempts = retryAttempts,

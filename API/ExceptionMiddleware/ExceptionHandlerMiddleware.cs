@@ -14,23 +14,21 @@ namespace SincronizadorPqfLegacy.API.ExceptionMiddleware
     /// <param name="next">The delegate representing the next middleware in the request pipeline.</param>
     /// <param name="configuration"></param>
     /// <param name="logger"></param>
-    /// <param name="exceptionClassifier">Service for classifying exceptions.</param>
     public class ExceptionHandlerMiddleware(
-        RequestDelegate next, 
-        ILogger<ExceptionHandlerMiddleware> logger, 
-        IConfiguration configuration,
-        IExceptionClassifier exceptionClassifier)
+        RequestDelegate next,
+        ILogger<ExceptionHandlerMiddleware> logger,
+        IConfiguration configuration)
     {
         private readonly RequestDelegate _next = next;
         private readonly IConfiguration _configuration = configuration;
-        private readonly IExceptionClassifier _exceptionClassifier = exceptionClassifier;
 
         /// <summary>
         /// Procesa una solicitud HTTP y maneja cualquier excepción que ocurra durante la ejecución del middleware.
         /// </summary>
         /// <param name="httpContext">El contexto HTTP que contiene toda la información sobre la solicitud actual.</param>
+        /// <param name="exceptionClassifier">Service for classifying exceptions (injected per request).</param>
         /// <returns>Una tarea que representa la operación asincrónica de procesamiento de la solicitud.</returns>
-        public async Task InvokeAsync(HttpContext httpContext)
+        public async Task InvokeAsync(HttpContext httpContext, IExceptionClassifier exceptionClassifier)
         {
             try
             {
@@ -42,7 +40,7 @@ namespace SincronizadorPqfLegacy.API.ExceptionMiddleware
                 var exeptionDetails = showDetails ? GetExceptionDetails(ex) : null;
 
                 logger.LogError(ex, "Unhandled exception occurred while processing the request.");
-                await HandleExceptionAsync(httpContext, ex, exeptionDetails);
+                await HandleExceptionAsync(httpContext, ex, exeptionDetails, exceptionClassifier);
             }
         }
 
@@ -54,11 +52,12 @@ namespace SincronizadorPqfLegacy.API.ExceptionMiddleware
         /// <param name="context">El contexto HTTP asociado con la solicitud actual.</param>
         /// <param name="exception">La excepción que se produjo durante el procesamiento de la solicitud.</param>
         /// <param name="exeptionDetails">Detalle de la exception que solo se muestra en ambiente de desarrollo</param>
+        /// <param name="exceptionClassifier">Service for classifying exceptions.</param>
         /// <returns>Una tarea que representa la operación asincrónica de escritura de la respuesta HTTP.</returns>
-        public async Task HandleExceptionAsync(HttpContext context, Exception exception, object? exeptionDetails)
+        public async Task HandleExceptionAsync(HttpContext context, Exception exception, object? exeptionDetails, IExceptionClassifier exceptionClassifier)
         {
             // Usar el clasificador para obtener detalles HTTP
-            var (statusCode, title) = _exceptionClassifier.GetHttpDetails(exception);
+            var (statusCode, title) = exceptionClassifier.GetHttpDetails(exception);
 
             //Se configura la respuesta HTTP
             context.Response.ContentType = "application/json";
