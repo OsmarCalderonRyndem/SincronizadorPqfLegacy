@@ -1,7 +1,5 @@
-﻿using SincronizadorPqfLegacy.Application.Exceptions;
-using SincronizadorPqfLegacy.Application.Factorys;
-using SincronizadorPqfLegacy.Domain.Exceptions;
-using SincronizadorPqfLegacy.Infrastructure.Exceptions;
+﻿using SincronizadorPqfLegacy.Application.Factorys;
+using SincronizadorPqfLegacy.Domain.Interfaces;
 using System.Text.Json;
 
 namespace SincronizadorPqfLegacy.API.ExceptionMiddleware
@@ -12,24 +10,20 @@ namespace SincronizadorPqfLegacy.API.ExceptionMiddleware
     /// </summary>
     /// <remarks>This middleware intercepts exceptions that occur during
     /// HTTP request processing and generates an HTTP response with a status code and error message
-    /// in JSON format. The HTTP status code is assigned based on the type of exception:
-    /// <list type="bullet">
-    /// <item> <description> <see cref="ApplicationException"/> generates a status code 400 (Bad Request).</description> </item>
-    /// <item> <description><see cref="KeyNotFoundException"/> generates a status code 404 (Not Found).</description> </item>
-    /// <item> <description>Other types of exceptions generate a status code 500 (Internal Server Error).
-    /// </description> </item>
-    /// </list></remarks>
-    /// <remarks>
-    /// Middleware that handles unhandled exceptions in the application. It captures exceptions thrown during
-    /// request processing and converts them into appropriate HTTP responses.
-    /// </remarks>
+    /// in JSON format. Uses IExceptionClassifier for unified exception classification and HTTP mapping.</remarks>
     /// <param name="next">The delegate representing the next middleware in the request pipeline.</param>
     /// <param name="configuration"></param>
     /// <param name="logger"></param>
-    public class ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionHandlerMiddleware> logger, IConfiguration configuration)
+    /// <param name="exceptionClassifier">Service for classifying exceptions.</param>
+    public class ExceptionHandlerMiddleware(
+        RequestDelegate next, 
+        ILogger<ExceptionHandlerMiddleware> logger, 
+        IConfiguration configuration,
+        IExceptionClassifier exceptionClassifier)
     {
         private readonly RequestDelegate _next = next;
         private readonly IConfiguration _configuration = configuration;
+        private readonly IExceptionClassifier _exceptionClassifier = exceptionClassifier;
 
         /// <summary>
         /// Procesa una solicitud HTTP y maneja cualquier excepción que ocurra durante la ejecución del middleware.
@@ -55,71 +49,21 @@ namespace SincronizadorPqfLegacy.API.ExceptionMiddleware
 
         /// <summary>
         /// Maneja excepciones no controladas y configura una respuesta HTTP adecuada en formato JSON.
+        /// Utiliza IExceptionClassifier para determinar el código de estado y título apropiados.
         /// </summary>
-        /// <remarks>Este método analiza el tipo de excepción proporcionada y genera una respuesta HTTP
-        /// con un código de estado y un cuerpo JSON que describe el error. Los tipos de excepciones manejados incluyen:
-        /// <list type="bullet"> 
-        /// <item> <description><see cref="DomainException"/>: Devuelve un código de estado 400 (Bad Request) con detalles específicos del dominio.</description> </item> 
-        /// <item> <description><see cref="KeyNotFoundException"/>: Devuelve un código de estado 404 (Not Found) con un mensaje de error.</description> </item> 
-        /// <item> <description>Otras excepciones: Devuelve un código de estado 500 (Internal Server Error) con detalles de la excepción.</description> </item> 
-        /// </list></remarks>
         /// <param name="context">El contexto HTTP asociado con la solicitud actual.</param>
         /// <param name="exception">La excepción que se produjo durante el procesamiento de la solicitud.</param>
         /// <param name="exeptionDetails">Detalle de la exception que solo se muestra en ambiente de desarrollo</param>
         /// <returns>Una tarea que representa la operación asincrónica de escritura de la respuesta HTTP.</returns>
         public async Task HandleExceptionAsync(HttpContext context, Exception exception, object? exeptionDetails)
         {
+            // Usar el clasificador para obtener detalles HTTP
+            var (statusCode, title) = _exceptionClassifier.GetHttpDetails(exception);
 
-
-            int statusCode;
-            string title = "";
             //Se configura la respuesta HTTP
             context.Response.ContentType = "application/json";
-
-            switch (exception)
-            {
-                case DomainException:
-                    title = "Domain Error";
-                    statusCode = StatusCodes.Status400BadRequest;
-                    break;
-                case DomainArgumentNullException:
-                    title = "Domain Argument Null Error";
-                    statusCode = StatusCodes.Status400BadRequest;
-                    break;
-                case AppArgumentException:
-                    title = "Application Argument Error";
-                    statusCode = StatusCodes.Status400BadRequest;
-                    break;
-                case AppArgumentNullException:
-                    title = "Application Argument Null Error";
-                    statusCode = StatusCodes.Status400BadRequest;
-                    break;
-                case AppKeyNotFoundException:
-                    title = "Application Key Not Found Error";
-                    statusCode = StatusCodes.Status404NotFound;
-                    break;
-                case AppFileNotFoundException:
-                    title = "Application File Not Found Error";
-                    statusCode = StatusCodes.Status404NotFound;
-                    break;
-                case AppException:
-                    title = "Application Error";
-                    statusCode = StatusCodes.Status400BadRequest;
-                    break;
-                case InfrastructureNotImplementedException:
-                    title = "Infrastructure Not Implemented Error";
-                    statusCode = StatusCodes.Status501NotImplemented;
-                    break;
-                case InfrastructureException:
-                    title = "Infrastructure Error";
-                    statusCode = StatusCodes.Status400BadRequest;
-                    break;
-                default:
-                    title = "Internal Server Error";
-                    statusCode = StatusCodes.Status500InternalServerError;
-                    break;
-            }
             context.Response.StatusCode = statusCode;
+
             var problem = ProblemDetailsHelper.CreateProblemDetails(context, statusCode, title, "");
 
             problem.Detail = exception.Message ?? "";
