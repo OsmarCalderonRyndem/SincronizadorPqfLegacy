@@ -128,18 +128,14 @@ namespace SincronizadorPqfLegacy.Application.Services
                 context?.WriteLine("  SINCRONIZACIÓN AUTOMÁTICA DE PENDIENTES", ConsoleTextColor.Cyan);
                 context?.WriteLine("═══════════════════════════════════════════════════════");
                 context?.WriteLine($"Hora de ejecución: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                context?.WriteLine("");
 
                 _logger.LogInformation("Iniciando sincronización automática de pendientes");
 
-                var progressBar = context?.WriteProgressBar();
-                progressBar?.SetValue(0);
-
-                // Ejecutar la sincronización
-                var resultado = await _sincronizacionMultipleService.SincronizarPendientesAsync();
+                // Ejecutar la sincronización (la barra de progreso se maneja internamente)
+                var resultado = await _sincronizacionMultipleService.SincronizarPendientesAsync(context);
 
                 // Reportar resultados
-                progressBar?.SetValue(100);
-
                 context?.WriteLine("");
                 context?.WriteLine("───────────────────────────────────────────────────────");
                 context?.WriteLine("  RESULTADOS", ConsoleTextColor.White);
@@ -206,16 +202,11 @@ namespace SincronizadorPqfLegacy.Application.Services
                 _logger.LogInformation("Job de procesos sin detonación inicial ejecutado (placeholder)");
 
 
-                var progressBar = context?.WriteProgressBar();
-                progressBar?.SetValue(0);
+                // Ejecutar la sincronización (la barra de progreso se maneja internamente)
+                var resultado = await _sincronizacionMultipleService.SincronizarCotizacionesPendientes(context);
 
-                // Ejecutar la sincronización
-                var resultado = await _sincronizacionMultipleService.SincronizarCotizacionesPendientes();
-
-                // Reportar resultados
-                progressBar?.SetValue(100);
-
-                context?.WriteLine($"Total de cotizaciones sincronizadas: {resultado.Count}");
+                context?.WriteLine("");
+                context?.WriteLine($"Total de cotizaciones sincronizadas: {resultado.Count}", ConsoleTextColor.Cyan);
                 _logger.LogInformation("Procesos sin detonación inicial completados. Total sincronizadas: {Count}", resultado.Count);
 
                 
