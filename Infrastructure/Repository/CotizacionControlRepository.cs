@@ -140,7 +140,7 @@ public class CotizacionControlRepository : ICotizacionControlRepository
             entidad.FechaRegistro = DateTime.Now;
             entidad.FechaUltimaActualizacion = DateTime.Now;
             entidad.Insertado = true;
-            entidad.Actualizado = false;          
+            entidad.Actualizado = false;
 
             // Insertar
             await _context.Cotizaciones.AddAsync(entidad);
@@ -191,7 +191,7 @@ public class CotizacionControlRepository : ICotizacionControlRepository
             // Mapear DTO → Entity (actualiza los valores)
             _mapper.Map(cotizacion, entidadExistente);
 
-            
+
             // Actualizar campos de auditoría
             entidadExistente.FechaUltimaActualizacion = DateTime.Now;
             entidadExistente.Actualizado = true;

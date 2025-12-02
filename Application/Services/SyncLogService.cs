@@ -1,4 +1,4 @@
-using Infrastructure.Persistence.PConnectProquifaDotNet.Entities;
+using SincronizadorPqfLegacy.Domain.Models;
 using SincronizadorPqfLegacy.Application.Interfaces;
 using SincronizadorPqfLegacy.Domain.Interfaces;
 

@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using SincronizadorPqfLegacy.Infrastructure.Models;
-using SincronizadorPqfLegacy.Domain.Models;
 
 namespace SincronizadorPqfLegacy.Infrastructure.Mappers
 {
@@ -14,7 +12,7 @@ namespace SincronizadorPqfLegacy.Infrastructure.Mappers
     {
         public ApplicationMappingProfile()
         {
-            CreateMap<TableDummyDomain, TableDummy>();
+
         }
     }
 }

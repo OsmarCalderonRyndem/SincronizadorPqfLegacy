@@ -1,5 +1,5 @@
 using Infrastructure.Persistence.PConnectProquifaDotNet.Contexts;
-using Infrastructure.Persistence.PConnectProquifaDotNet.Entities;
+using SincronizadorPqfLegacy.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using SincronizadorPqfLegacy.Domain.Interfaces;
 

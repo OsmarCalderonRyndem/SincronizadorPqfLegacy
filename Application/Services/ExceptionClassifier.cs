@@ -3,7 +3,7 @@ using SincronizadorPqfLegacy.Domain.Exceptions;
 using SincronizadorPqfLegacy.Domain.Interfaces;
 using SincronizadorPqfLegacy.Domain.Models;
 using SincronizadorPqfLegacy.Application.Exceptions;
-using SincronizadorPqfLegacy.Infrastructure.Exceptions;
+using SincronizadorPqfLegacy.Domain.Exceptions;
 using FluentValidation;
 
 namespace SincronizadorPqfLegacy.Application.Services

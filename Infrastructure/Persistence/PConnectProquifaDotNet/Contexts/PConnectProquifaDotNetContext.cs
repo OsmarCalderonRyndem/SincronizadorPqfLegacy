@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SincronizadorPqfLegacy.Domain.Models;
 using Infrastructure.Persistence.PConnectProquifaDotNet.Entities;
 using Microsoft.EntityFrameworkCore;
 

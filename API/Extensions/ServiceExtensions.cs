@@ -1,10 +1,8 @@
-using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hangfire;
 using Hangfire.Console;
 using Infrastructure.Persistence.PConnect.Contexts;
 using Infrastructure.Persistence.PConnectProquifaDotNet.Contexts;
-using Infrastructure.Persistence.PConnectProquifaDotNet.Entities;
 using Infrastructure.Persistence.ProquifaDotNet.Contexts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +11,6 @@ using SincronizadorPqfLegacy.API.BackgroundServices;
 using SincronizadorPqfLegacy.Application.Factorys;
 using SincronizadorPqfLegacy.Application.Interfaces;
 using SincronizadorPqfLegacy.Application.Services;
-using SincronizadorPqfLegacy.Application.Validators;
 using SincronizadorPqfLegacy.Domain.Interfaces;
 using SincronizadorPqfLegacy.Domain.Interfaces.Repositories;
 using SincronizadorPqfLegacy.Domain.Interfaces.Repository;
@@ -123,7 +120,7 @@ namespace SincronizadorPqfLegacy.API.Extensions
         public static void ConfigureApplicationServices(this IServiceCollection services)
         {
             // Injections of dependencies
-            services.AddScoped<ITableDummyService, TableDummyService>();
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Hangfire Job Services
@@ -133,22 +130,22 @@ namespace SincronizadorPqfLegacy.API.Extensions
             services.AddSingleton<ProcesoEtlMetadataService>();
 
             // Validators
-            services.AddScoped<TableDummyValidator>();
+
 
             // Repositories
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IGenericRepository<SyncJobLog>, SyncJobLogRepository>();
-            services.AddScoped<TableDummyRepository>();
+
 
             // FluentValidation
             services.AddFluentValidationAutoValidation();
-            services.AddValidatorsFromAssemblyContaining<TableDummyDtoFluetValidator>();
+
 
             // AutoMapper profiles
             services.AddAutoMapper(cfg =>
             {
                 cfg.AddProfile<ApplicationMappingProfile>();
-                cfg.AddProfile<DomainMappingProfile>();
+
             });
         }
 

@@ -2,6 +2,7 @@ using Infrastructure.Persistence.PConnectProquifaDotNet.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SincronizadorPqfLegacy.Domain.Models;
 
 namespace SincronizadorPqfLegacy.Infrastructure.Services
 {

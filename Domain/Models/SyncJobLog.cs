@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Persistence.PConnectProquifaDotNet.Entities;
+namespace SincronizadorPqfLegacy.Domain.Models;
 
 [Table("SyncJobLog")]
-[Index("NombreEntidad", "IdentificadorRegistro", Name = "IX_SyncJobLog_Entidad_Registro")]
-[Index("Estado", Name = "IX_SyncJobLog_Estado")]
-[Index("FechaProcesamiento", Name = "IX_SyncJobLog_FechaProcesamiento")]
 public partial class SyncJobLog
 {
     [Key]
