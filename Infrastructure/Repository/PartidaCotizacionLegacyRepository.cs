@@ -25,15 +25,15 @@ public class PartidaCotizacionLegacyRepository : IPartidaCotizacionLegacyReposit
         _logger = logger;
     }
 
-    public async Task<IEnumerable<PartidaCotizacionLegacyDto>> ObtenerPorFolioAsync(int pkFolio)
+    public async Task<IEnumerable<PartidaCotizacionLegacyDto>> ObtenerPorFolioAsync(int idPCotiza)
     {
         try
         {
-            _logger.LogDebug("Obteniendo partidas de folio legacy: {Folio}", pkFolio);
+            _logger.LogDebug("Obteniendo partidas de folio legacy: {Folio}", idPCotiza);
 
             var entidades = await _context.PCotizas
                 .AsNoTracking()
-                .Where(p => p.FK02_Cotiza == pkFolio)
+                .Where(p => p.idPCotiza == idPCotiza)
                 .ToListAsync();
 
             var dtos = _mapper.Map<IEnumerable<PartidaCotizacionLegacyDto>>(entidades);
@@ -44,7 +44,7 @@ public class PartidaCotizacionLegacyRepository : IPartidaCotizacionLegacyReposit
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al obtener partidas de folio: {Folio}", pkFolio);
+            _logger.LogError(ex, "Error al obtener partidas de folio: {Folio}", idPCotiza);
             throw;
         }
     }
