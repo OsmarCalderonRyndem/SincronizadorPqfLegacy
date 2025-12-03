@@ -1,4 +1,4 @@
-﻿namespace SincronizadorPqfLegacy.Infrastructure.Exceptions
+namespace SincronizadorPqfLegacy.Domain.Exceptions
 {
     public class InfrastructureException : Exception
     {

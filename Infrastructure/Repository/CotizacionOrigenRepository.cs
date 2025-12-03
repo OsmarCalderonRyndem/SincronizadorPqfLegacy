@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Infrastructure.Persistence.PConnect.Contexts;
+using Infrastructure.Persistence.PConnectProquifaDotNet.Contexts;
 using Infrastructure.Persistence.ProquifaDotNet.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -13,16 +15,19 @@ namespace SincronizadorPqfLegacy.Infrastructure.Repositories;
 /// </summary>
 public class CotizacionOrigenRepository : ICotizacionOrigenRepository
 {
-    private readonly ProquifaDotNetContext _context;
+    private readonly ProquifaDotNetContext _proquifaContext;
+    private readonly PConnectProquifaDotNetContext _pconnectProquifaContext;
     private readonly IMapper _mapper;
     private readonly ILogger<CotizacionOrigenRepository> _logger;
 
     public CotizacionOrigenRepository(
         ProquifaDotNetContext context,
+        PConnectProquifaDotNetContext pcpcontext,
         IMapper mapper,
         ILogger<CotizacionOrigenRepository> logger)
     {
-        _context = context;
+        _proquifaContext = context;
+        _pconnectProquifaContext = pcpcontext;
         _mapper = mapper;
         _logger = logger;
     }
@@ -37,7 +42,7 @@ public class CotizacionOrigenRepository : ICotizacionOrigenRepository
             _logger.LogDebug("Buscando cotización origen: {Id}", idCotizacion);
 
             // Query a la vista
-            var entidad = await _context.vCotizacionesTransformadasETLs
+            var entidad = await _proquifaContext.vCotizacionesTransformadasETLs
                 .AsNoTracking() // Solo lectura, no tracking
                 .Where(c => c.IdCotCotizacion == idCotizacion)
                 .FirstOrDefaultAsync();
@@ -58,6 +63,24 @@ public class CotizacionOrigenRepository : ICotizacionOrigenRepository
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al obtener cotización origen: {Id}", idCotizacion);
+            throw;
+        }
+    }
+
+    public async Task<List<Guid>> SincronizarCotizacionesPQF2Pendientes()
+    {
+        try
+        {
+            var cotizaionesPendientes = _pconnectProquifaContext.vETLCotizacionesPendietes
+                .AsNoTracking()
+                .Select(x=>x.IdCotCotizacion)
+                .ToList();
+            
+            return cotizaionesPendientes ?? [];
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener cotizaciones pendientes en ProquifaNet 2");
             throw;
         }
     }

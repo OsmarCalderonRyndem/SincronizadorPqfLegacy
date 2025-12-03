@@ -1,4 +1,5 @@
-﻿using SincronizadorPqfLegacy.Application.DTOs;
+﻿using Hangfire.Server;
+using SincronizadorPqfLegacy.Application.DTOs;
 
 namespace SincronizadorPqfLegacy.Application.Interfaces;
 
@@ -11,5 +12,7 @@ public interface ISincronizacionMultipleService
     /// Sincroniza todas las cotizaciones pendientes de la tabla de control
     /// </summary>
     /// <returns>Resultado con contadores de éxito/error</returns>
-    Task<ResultadoSincronizacionMultipleDto> SincronizarPendientesAsync();
+    Task<ResultadoSincronizacionMultipleDto> SincronizarPendientesAsync(PerformContext? context = null);
+
+    Task<List<Guid>> SincronizarCotizacionesPendientes(PerformContext? context = null);
 }

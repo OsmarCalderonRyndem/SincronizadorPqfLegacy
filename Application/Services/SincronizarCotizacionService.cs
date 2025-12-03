@@ -215,7 +215,7 @@ namespace SincronizadorPqfLegacy.Application.Services
             control.CotizacionLegacy = legacy.PK_Folio;
             control.PK_Folio = legacy.PK_Folio;
             control.RegistroCompleto = true;
-            control.Actualizado = true;
+            control.Actualizado = false;
             control.FechaUltimaActualizacion = DateTime.Now;
             control.FechaUltimaActualizacionLegacy = DateTime.Now;
 
